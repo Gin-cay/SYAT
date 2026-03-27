@@ -62,6 +62,10 @@ from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
+# 报警联动状态：1 表示触发，供硬件轮询后自动复位为 0
+_alarm_status = 0
+_alarm_lock = threading.Lock()
+
 # 火险热力图落点持久化（JSON 文件，便于无数据库部署）
 _FIRE_POINTS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fire_risk_points.json")
 _fire_points_lock = threading.Lock()
@@ -803,6 +807,34 @@ def get_fire_risk_points():
 @app.get("/healthz")
 def healthz():
     return jsonify({"ok": True})
+
+
+@app.post("/emergency_trigger")
+def emergency_trigger():
+    """
+    紧急上报成功后由小程序调用：
+    - 将全局报警状态置为 1
+    """
+    global _alarm_status
+    _ = request.get_json(silent=True) or {}
+    with _alarm_lock:
+        _alarm_status = 1
+    return jsonify({"code": 200, "message": "alarm triggered", "alarm_status": 1})
+
+
+@app.get("/alarm")
+def alarm_poll():
+    """
+    供 ESP32 轮询：
+    - 返回当前 alarm_status（0/1）
+    - 若读取到 1，返回后自动复位为 0
+    """
+    global _alarm_status
+    with _alarm_lock:
+        current = int(_alarm_status)
+        if _alarm_status == 1:
+            _alarm_status = 0
+    return jsonify({"code": 200, "alarm": current})
 
 
 if __name__ == "__main__":
