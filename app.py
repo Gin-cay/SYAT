@@ -75,12 +75,24 @@ _fire_points_lock = threading.Lock()
 _FIRE_POINTS_MAX = int(os.getenv("FIRE_POINTS_MAX", "8000").strip() or 8000)
 _FIRE_POINT_KEY_DECIMALS = int(os.getenv("FIRE_POINT_KEY_DECIMALS", "4").strip() or 4)
 
-# 火情上报 MySQL 配置（云托管环境变量）
+# 火情上报 MySQL 配置（兼容云托管常见命名）
+_MYSQL_ADDRESS = os.getenv("MYSQL_ADDRESS", "").strip()  # e.g. 10.9.x.x:3306
 MYSQL_HOST = os.getenv("MYSQL_HOST", "").strip()
-MYSQL_PORT = int(os.getenv("MYSQL_PORT", "3306").strip() or 3306)
-MYSQL_USER = os.getenv("MYSQL_USER", "").strip()
+MYSQL_PORT_RAW = os.getenv("MYSQL_PORT", "").strip()
+MYSQL_USER = os.getenv("MYSQL_USER", "").strip() or os.getenv("MYSQL_USERNAME", "").strip()
 MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD", "").strip()
-MYSQL_DB = os.getenv("MYSQL_DB", "").strip()
+MYSQL_DB = os.getenv("MYSQL_DB", "").strip() or os.getenv("MYSQL_DATABASE", "").strip()
+
+if not MYSQL_HOST and _MYSQL_ADDRESS:
+    if ":" in _MYSQL_ADDRESS:
+        MYSQL_HOST, MYSQL_PORT_RAW = _MYSQL_ADDRESS.split(":", 1)
+    else:
+        MYSQL_HOST = _MYSQL_ADDRESS
+
+try:
+    MYSQL_PORT = int(MYSQL_PORT_RAW or "3306")
+except Exception:
+    MYSQL_PORT = 3306
 
 
 def _read_fire_points_unlocked() -> list[dict[str, Any]]:
@@ -102,7 +114,9 @@ def _write_fire_points_unlocked(rows: list[dict[str, Any]]) -> None:
 
 def get_mysql_conn():
     if not (MYSQL_HOST and MYSQL_USER and MYSQL_DB):
-        raise RuntimeError("缺少 MySQL 环境变量：MYSQL_HOST/MYSQL_USER/MYSQL_DB")
+        raise RuntimeError(
+            "缺少 MySQL 环境变量：请配置 MYSQL_DB(或MYSQL_DATABASE)，并确保 MYSQL_ADDRESS/MYSQL_USERNAME 可用"
+        )
     return pymysql.connect(
         host=MYSQL_HOST,
         port=MYSQL_PORT,
