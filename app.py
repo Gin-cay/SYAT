@@ -54,11 +54,13 @@ import math
 import os
 import threading
 import time
+import base64
 from dataclasses import dataclass
 from typing import Any, Dict, Iterable, Optional, Tuple
 
 import requests
 from flask import Flask, jsonify, request
+import pymysql
 
 app = Flask(__name__)
 
@@ -72,6 +74,13 @@ _fire_points_lock = threading.Lock()
 # 最多保留条数（防无限增长）
 _FIRE_POINTS_MAX = int(os.getenv("FIRE_POINTS_MAX", "8000").strip() or 8000)
 _FIRE_POINT_KEY_DECIMALS = int(os.getenv("FIRE_POINT_KEY_DECIMALS", "4").strip() or 4)
+
+# 火情上报 MySQL 配置（云托管环境变量）
+MYSQL_HOST = os.getenv("MYSQL_HOST", "").strip()
+MYSQL_PORT = int(os.getenv("MYSQL_PORT", "3306").strip() or 3306)
+MYSQL_USER = os.getenv("MYSQL_USER", "").strip()
+MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD", "").strip()
+MYSQL_DB = os.getenv("MYSQL_DB", "").strip()
 
 
 def _read_fire_points_unlocked() -> list[dict[str, Any]]:
@@ -89,6 +98,53 @@ def _write_fire_points_unlocked(rows: list[dict[str, Any]]) -> None:
     os.makedirs(os.path.dirname(_FIRE_POINTS_PATH), exist_ok=True)
     with open(_FIRE_POINTS_PATH, "w", encoding="utf-8") as f:
         json.dump(rows, f, ensure_ascii=False)
+
+
+def get_mysql_conn():
+    if not (MYSQL_HOST and MYSQL_USER and MYSQL_DB):
+        raise RuntimeError("缺少 MySQL 环境变量：MYSQL_HOST/MYSQL_USER/MYSQL_DB")
+    return pymysql.connect(
+        host=MYSQL_HOST,
+        port=MYSQL_PORT,
+        user=MYSQL_USER,
+        password=MYSQL_PASSWORD,
+        database=MYSQL_DB,
+        charset="utf8mb4",
+        cursorclass=pymysql.cursors.Cursor,
+        autocommit=True,
+    )
+
+
+def ensure_fire_report_table():
+    sql = """
+    CREATE TABLE IF NOT EXISTS fire_reports (
+      id BIGINT PRIMARY KEY AUTO_INCREMENT,
+      location VARCHAR(512) NOT NULL,
+      images LONGTEXT NOT NULL,
+      report_time VARCHAR(32) NOT NULL,
+      status VARCHAR(32) NOT NULL DEFAULT 'submitted'
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    """
+    conn = get_mysql_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(sql)
+    finally:
+        conn.close()
+
+
+def insert_fire_report(location: str, images: list[str], report_time: str, status: str) -> int:
+    ensure_fire_report_table()
+    conn = get_mysql_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "INSERT INTO fire_reports(location, images, report_time, status) VALUES(%s,%s,%s,%s)",
+                (location, json.dumps(images, ensure_ascii=False), report_time, status),
+            )
+            return int(cur.lastrowid or 0)
+    finally:
+        conn.close()
 
 
 def record_fire_risk_map_point(
@@ -807,6 +863,54 @@ def get_fire_risk_points():
 @app.get("/healthz")
 def healthz():
     return jsonify({"ok": True})
+
+
+@app.post("/fire_report")
+def fire_report():
+    """
+    火情上报接口：
+    - JSON: images 为 base64 数组
+    - multipart/form-data: images 文件列表
+    """
+    try:
+        location = ""
+        report_time = ""
+        status = "submitted"
+        images: list[str] = []
+
+        if request.is_json:
+            body = request.get_json(silent=True) or {}
+            location = str(body.get("location") or "").strip()
+            report_time = str(body.get("report_time") or body.get("reportTime") or "").strip()
+            status = str(body.get("status") or "submitted").strip() or "submitted"
+            raw_images = body.get("images") or []
+            if isinstance(raw_images, list):
+                images = [str(x) for x in raw_images if str(x).strip()]
+        else:
+            location = str(request.form.get("location") or "").strip()
+            report_time = str(request.form.get("report_time") or request.form.get("reportTime") or "").strip()
+            status = str(request.form.get("status") or "submitted").strip() or "submitted"
+            file_list = request.files.getlist("images")
+            if not file_list and request.files.get("image"):
+                file_list = [request.files.get("image")]
+            for f in file_list:
+                if not f:
+                    continue
+                b = f.read() or b""
+                if b:
+                    images.append(base64.b64encode(b).decode("utf-8"))
+
+        if not location:
+            return jsonify({"code": 400, "message": "location 不能为空", "data": None})
+        if not report_time:
+            report_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        if not images:
+            return jsonify({"code": 400, "message": "images 不能为空", "data": None})
+
+        rid = insert_fire_report(location, images[:3], report_time, status)
+        return jsonify({"code": 200, "message": "ok", "data": {"id": rid}})
+    except Exception as e:
+        return jsonify({"code": 500, "message": str(e) or "服务异常", "data": None})
 
 
 @app.post("/emergency_trigger")
