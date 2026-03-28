@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "编辑资料",
+  "usingComponents": {
+    "lang-switch": "/components/lang-switch/lang-switch"
+  }
+}

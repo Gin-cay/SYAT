@@ -1,0 +1,63 @@
+<view class="page">
+  <lang-switch />
+
+  <view class="detail-card">
+    <view class="card-top">
+      <view class="warning-id">{{detail.id}}</view>
+      <view class="level-tag level-{{detail.riskLevelKey}}">{{detail.riskLevel}}</view>
+    </view>
+
+    <view class="row">
+      <view class="label">{{L.labelTime}}</view>
+      <view class="value">{{detail.warningTime}}</view>
+    </view>
+
+    <view class="row">
+      <view class="label">{{L.labelPlace}}</view>
+      <view class="value">{{detail.location}}</view>
+    </view>
+
+    <view class="row">
+      <view class="label">{{L.labelStatus}}</view>
+      <view class="status-wrap">
+        <view class="status-dot status-dot-{{detail.statusKey}}"></view>
+        <view class="status-text status-{{detail.statusKey}}">{{detail.status}}</view>
+      </view>
+    </view>
+
+    <view class="section-title">{{L.warningDetail}}</view>
+    <view class="description">{{detail.description}}</view>
+  </view>
+
+  <view class="block">
+    <view class="section-title">{{L.photos}}</view>
+    <scroll-view scroll-x="true" class="images-scroll">
+      <view class="image-list">
+        <image
+          class="image-item"
+          wx:for="{{detail.photos}}"
+          wx:key="*this"
+          src="{{item}}"
+          mode="aspectFill"
+          data-src="{{item}}"
+          bindtap="previewImage"
+        />
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="block">
+    <view class="section-title">{{L.records}}</view>
+    <view class="record-item" wx:for="{{detail.records}}" wx:key="time">
+      <view class="record-time">{{item.time}}</view>
+      <view class="record-content">{{item.content}}</view>
+      <view class="record-operator">{{L.operatorPrefix}}{{item.operator}}</view>
+    </view>
+  </view>
+
+  <view class="bottom-bar">
+    <button class="action-btn accept-btn" bindtap="onAccept">{{L.accept}}</button>
+    <button class="action-btn arrive-btn" bindtap="onArrive">{{L.arrive}}</button>
+    <button class="action-btn finish-btn" bindtap="onFinish">{{L.finish}}</button>
+  </view>
+</view>

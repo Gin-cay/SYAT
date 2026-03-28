@@ -1,0 +1,29 @@
+<view class="voice-wrap">
+  <view class="voice-row">
+    <view
+      class="mic-btn {{recording ? 'mic-on' : ''}}"
+      hover-class="mic-hover"
+      bindtap="toggleRecord"
+    >
+      <text class="mic-icon">麦</text>
+    </view>
+    <view class="voice-side">
+      <view class="voice-hint">{{recording ? '录音中，再次点击结束' : '点击麦克风开始，再点一次结束'}}</view>
+      <view class="voice-sub">直接上传语音包，不做转写，支持方言</view>
+      <view wx:if="{{recording}}" class="rec-timer">已录 {{recordTick}} 秒</view>
+    </view>
+  </view>
+
+  <view wx:if="{{filePath && !recording}}" class="voice-result">
+    <view class="dur-row">
+      <text class="dur-label">时长</text>
+      <text class="dur-val">{{durationLabel}}</text>
+    </view>
+    <view class="btn-row">
+      <button class="play-btn" size="mini" bindtap="togglePlay">
+        {{playing ? '暂停' : '播放'}}
+      </button>
+      <button class="redo-btn" size="mini" bindtap="reRecord">重录</button>
+    </view>
+  </view>
+</view>

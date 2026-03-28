@@ -1,0 +1,104 @@
+.page {
+  min-height: 100vh;
+  background: #f2f7ff;
+  padding: 24rpx;
+  box-sizing: border-box;
+}
+
+.profile-card {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 16rpx;
+  border: 1rpx solid #dbe7ff;
+  padding: 24rpx;
+  box-shadow: 0 8rpx 24rpx rgba(16, 77, 154, 0.08);
+}
+
+.avatar {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #165dff, #00b42a);
+  color: #ffffff;
+  font-size: 34rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.avatar-img {
+  border: 3rpx solid rgba(22, 93, 255, 0.35);
+}
+
+.profile-meta {
+  margin-left: 18rpx;
+}
+
+.name {
+  font-size: 34rpx;
+  color: #17396b;
+  font-weight: 600;
+}
+
+.role {
+  margin-top: 8rpx;
+  display: inline-block;
+  border-radius: 999rpx;
+  padding: 6rpx 16rpx;
+  background: rgba(22, 93, 255, 0.12);
+  color: #165dff;
+  font-size: 24rpx;
+}
+
+.forest {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #00b42a;
+}
+
+.menu-card {
+  margin-top: 18rpx;
+  background: #ffffff;
+  border-radius: 16rpx;
+  border: 1rpx solid #dbe7ff;
+  overflow: hidden;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 22rpx;
+  border-bottom: 1rpx solid #edf2ff;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-title {
+  font-size: 28rpx;
+  color: #2a3950;
+}
+
+.menu-arrow {
+  color: #9aacc2;
+  font-size: 28rpx;
+}
+
+.logout-btn {
+  margin-top: 28rpx;
+  border: none;
+  border-radius: 14rpx;
+  color: #ffffff;
+  background: linear-gradient(135deg, #0b67d2, #2d8fff);
+  font-size: 30rpx;
+  font-weight: 500;
+}
+
+.bottom-safe-area {
+  height: 24rpx;
+}

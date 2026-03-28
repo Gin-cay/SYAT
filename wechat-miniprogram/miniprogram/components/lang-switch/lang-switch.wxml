@@ -1,0 +1,3 @@
+<view class="lang-switch" bindtap="toggleLang">
+  <text class="lang-text">{{switchLabel}}</text>
+</view>

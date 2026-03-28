@@ -1,0 +1,138 @@
+.page {
+  min-height: 100vh;
+  background: #f2f7ff;
+  padding: 24rpx;
+  padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+.sync-hint {
+  font-size: 24rpx;
+  color: #5f708a;
+  margin-bottom: 16rpx;
+}
+
+.card {
+  background: #ffffff;
+  border: 1rpx solid #dbe7ff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 10rpx 28rpx rgba(22, 93, 255, 0.06);
+}
+
+.card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.card-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #165dff;
+}
+
+.card-desc {
+  font-size: 24rpx;
+  color: #6b7f96;
+  line-height: 1.6;
+}
+
+.section-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #124b97;
+  margin-bottom: 16rpx;
+  padding-bottom: 12rpx;
+  border-bottom: 1rpx solid #eef4ff;
+}
+
+.cell-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 72rpx;
+  padding: 8rpx 0;
+  border-bottom: 1rpx solid #f5f8ff;
+}
+
+.cell-row:last-child {
+  border-bottom: none;
+}
+
+.cell-label {
+  flex: 1;
+  font-size: 28rpx;
+  color: #1f2d3d;
+  padding-right: 16rpx;
+}
+
+.picker-row {
+  align-items: center;
+}
+
+.picker-value {
+  font-size: 28rpx;
+  color: #165dff;
+  padding: 8rpx 0;
+}
+
+.slider-block {
+  margin-top: 16rpx;
+}
+
+.slider-label {
+  font-size: 24rpx;
+  color: #5f708a;
+  margin-bottom: 8rpx;
+}
+
+.log-card {
+  margin-bottom: 0;
+}
+
+.log-empty {
+  font-size: 24rpx;
+  color: #8ca0bb;
+  padding: 16rpx 0;
+}
+
+.log-item {
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #eef4ff;
+}
+
+.log-item:last-child {
+  border-bottom: none;
+}
+
+.log-time {
+  font-size: 22rpx;
+  color: #5f708a;
+  margin-bottom: 6rpx;
+}
+
+.log-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1f2d3d;
+  margin-bottom: 4rpx;
+}
+
+.log-summary {
+  font-size: 24rpx;
+  color: #5f708a;
+  line-height: 1.5;
+}
+
+.log-level {
+  margin-top: 8rpx;
+  display: inline-block;
+  font-size: 22rpx;
+  color: #165dff;
+  background: rgba(22, 93, 255, 0.1);
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+}

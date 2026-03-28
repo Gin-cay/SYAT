@@ -1,0 +1,153 @@
+<wxs module="faq" src="./help-feedback.wxs"></wxs>
+
+<scroll-view class="page" scroll-y>
+  <!-- FAQ -->
+  <view class="card">
+    <view class="card-title">常见问题</view>
+    <input
+      class="search-input"
+      placeholder="搜索问题关键词"
+      value="{{searchKeyword}}"
+      confirm-type="search"
+      bindinput="onSearchInput"
+      bindconfirm="onSearchConfirm"
+    />
+    <scroll-view class="tab-scroll" scroll-x>
+      <view class="tab-row">
+        <view
+          class="tab-item {{activeCat === item.key ? 'on' : ''}}"
+          wx:for="{{faqTabs}}"
+          wx:key="key"
+          data-key="{{item.key}}"
+          bindtap="onFaqTabTap"
+        >{{item.label}}</view>
+      </view>
+    </scroll-view>
+
+    <view class="faq-list">
+      <view class="faq-item" wx:for="{{displayFaq}}" wx:key="id">
+        <view class="faq-q" data-id="{{item.id}}" bindtap="onToggleFaq">
+          <text class="faq-q-text">{{item.question}}</text>
+          <text class="faq-arrow">{{faq.open(expandedMap, item.id) ? '▲' : '▼'}}</text>
+        </view>
+        <view class="faq-a" wx:if="{{faq.open(expandedMap, item.id)}}">{{item.answer}}</view>
+      </view>
+      <view class="empty-tip" wx:if="{{!displayFaq.length}}">未找到相关问题，可尝试更换关键词或下方提交反馈。</view>
+    </view>
+  </view>
+
+  <!-- 问题反馈 -->
+  <view class="card">
+    <view class="card-title">问题反馈</view>
+    <view class="field">
+      <text class="label">反馈类型</text>
+      <picker
+        mode="selector"
+        range="{{typeOptions}}"
+        range-key="label"
+        value="{{typeIndex}}"
+        bindchange="onTypeChange"
+      >
+        <view class="picker-line">{{typeOptions[typeIndex].label}}</view>
+      </picker>
+    </view>
+    <view class="field">
+      <text class="label">问题描述</text>
+      <textarea
+        class="textarea"
+        placeholder="请描述遇到的问题（至少5个字）"
+        maxlength="500"
+        value="{{formContent}}"
+        bindinput="onContentInput"
+      />
+    </view>
+    <view class="field">
+      <text class="label">图片（最多3张）</text>
+      <view class="img-row">
+        <view class="img-item" wx:for="{{formImages}}" wx:key="*this">
+          <image
+            class="img"
+            src="{{item}}"
+            mode="aspectFill"
+            data-src="{{item}}"
+            bindtap="onPreviewFormImage"
+          />
+          <view class="img-del" data-index="{{index}}" catchtap="onRemoveImage">×</view>
+        </view>
+        <view class="img-add" bindtap="onChooseImage" wx:if="{{formImages.length < 3}}">+</view>
+      </view>
+    </view>
+    <view class="field">
+      <text class="label">联系方式</text>
+      <input
+        class="input"
+        placeholder="手机号 / 微信（选填）"
+        value="{{formContact}}"
+        bindinput="onContactInput"
+      />
+    </view>
+    <button
+      class="submit-btn"
+      loading="{{submitting}}"
+      disabled="{{submitting}}"
+      bindtap="onSubmitFeedback"
+    >提交反馈</button>
+  </view>
+
+  <!-- 联系我们 -->
+  <view class="card">
+    <view class="card-title">联系我们</view>
+    <view class="contact-row">
+      <text class="c-label">森林火警</text>
+      <text class="c-link" data-phone="{{contact.emergencyPhone}}" bindtap="onCallPhone">{{contact.emergencyPhone}}</text>
+    </view>
+    <view class="contact-row">
+      <text class="c-label">值班电话</text>
+      <text class="c-link" data-phone="{{contact.dutyPhone}}" bindtap="onCallPhone">{{contact.dutyPhone}}</text>
+    </view>
+    <view class="contact-row block">
+      <text class="c-label">技术支持</text>
+      <text class="c-text">{{contact.wechatHint}}</text>
+    </view>
+    <view class="contact-row block">
+      <text class="c-label">工作时间</text>
+      <text class="c-text">{{contact.workTime}}</text>
+    </view>
+    <view class="qr-wrap">
+      <image wx:if="{{contact.qrUrl}}" class="qr-img" src="{{contact.qrUrl}}" mode="aspectFit" />
+      <view wx:else class="qr-placeholder">企业微信群二维码（将图片放入 miniprogram/images 并在页面 data.contact.qrUrl 中配置路径）</view>
+    </view>
+  </view>
+
+  <!-- 反馈历史 -->
+  <view class="card history-card">
+    <view class="card-title">反馈历史</view>
+    <view class="empty-tip" wx:if="{{!history.length}}">暂无反馈记录</view>
+    <view class="hist-item" wx:for="{{history}}" wx:key="feedbackNo">
+      <view class="hist-head">
+        <text class="hist-no">{{item.feedbackNo}}</text>
+        <text class="hist-badge status-{{item.status}}">{{item.statusLabel}}</text>
+      </view>
+      <view class="hist-meta">{{item.timeText}} · {{item.typeLabel}}</view>
+      <view class="hist-content">{{item.content}}</view>
+      <view class="hist-imgs" wx:if="{{item.images && item.images.length}}">
+        <image
+          class="h-img"
+          wx:for="{{item.images}}"
+          wx:for-item="im"
+          wx:key="*this"
+          src="{{im}}"
+          mode="aspectFill"
+        />
+      </view>
+      <view class="hist-contact" wx:if="{{item.contact}}">联系方式：{{item.contact}}</view>
+      <button
+        wx:if="{{item.status !== 'resolved'}}"
+        class="resolve-btn"
+        size="mini"
+        data-no="{{item.feedbackNo}}"
+        bindtap="onMarkResolved"
+      >标记为已解决</button>
+    </view>
+  </view>
+</scroll-view>

@@ -1,0 +1,5 @@
+function open(map, id) {
+  if (!map || id === undefined || id === null) return false;
+  return !!map[id];
+}
+module.exports.open = open;

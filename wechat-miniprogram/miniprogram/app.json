@@ -1,0 +1,51 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/warning/warning",
+    "pages/warning-detail/warning-detail",
+    "pages/mine/mine",
+    "pages/report/index",
+    "pages/report/report",
+    "pages/checkin/checkin",
+    "pages/profile/profile",
+    "pages/login/login",
+    "pages/warning-setting/warning-setting",
+    "pages/help-feedback/help-feedback",
+    "pages/about/about",
+    "pages/patrol-records/patrol-records"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#165DFF",
+    "navigationBarTitleText": "林业防火预警监测平台",
+    "navigationBarTextStyle": "white"
+  },
+  "tabBar": {
+    "color": "#666",
+    "selectedColor": "#165DFF",
+    "backgroundColor": "#fff",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/warning/warning",
+        "text": "预警"
+      },
+      {
+        "pagePath": "pages/mine/mine",
+        "text": "我的"
+      }
+    ]
+  },
+  "requiredPrivateInfos": [
+    "getLocation"
+  ],
+  "permission": {
+    "scope.userLocation": {
+      "desc": "你的位置信息将用于火险热力图定位、AI 拍照落点与巡查打卡"
+    }
+  },
+  "sitemapLocation": "sitemap.json"
+}

@@ -1,0 +1,34 @@
+<view class="page">
+  <lang-switch />
+
+  <!-- 顶部用户卡片：点击进入编辑资料页 -->
+  <view class="user-card" bindtap="goEditProfile">
+    <image class="avatar" src="{{userInfo.avatar}}" mode="aspectFill" />
+    <view class="user-meta">
+      <text class="user-name">{{userInfo.name}}</text>
+      <view class="user-tag">{{userInfo.role}}</view>
+    </view>
+  </view>
+
+  <!-- 功能列表 -->
+  <view class="menu-card">
+    <view
+      class="menu-item"
+      wx:for="{{menuList}}"
+      wx:key="key"
+      data-key="{{item.key}}"
+      bindtap="onMenuTap"
+    >
+      <view class="menu-left">
+        <text class="menu-icon">{{item.icon}}</text>
+        <text class="menu-title">{{item.title}}</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 底部退出登录 -->
+  <view class="logout-wrap">
+    <button class="logout-btn" bindtap="onLogout">{{t('logout')}}</button>
+  </view>
+</view>

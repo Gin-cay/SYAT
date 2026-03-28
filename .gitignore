@@ -12,6 +12,9 @@ fire_risk_points.json
 .env
 .env.*
 
+# WeChat miniprogram (wechat-miniprogram/)
+wechat-miniprogram/miniprogram/node_modules/
+
 # OS / editor
 .DS_Store
 Thumbs.db

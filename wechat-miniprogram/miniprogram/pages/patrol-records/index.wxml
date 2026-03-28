@@ -1,0 +1,50 @@
+<view class="page">
+  <view class="toolbar">
+    <text class="toolbar-tip">离线仅本地缓存；联网后自动批量同步（需在 app.js 配置上报地址）</text>
+    <button class="toolbar-btn" size="mini" bindtap="goPatrol">去打卡</button>
+  </view>
+
+  <view wx:if="{{list.length === 0}}" class="empty">
+    <text class="empty-title">暂无巡查记录</text>
+    <text class="empty-desc">完成一次巡查打卡后，记录会出现在这里</text>
+    <button class="empty-btn" bindtap="goPatrol">立即巡查打卡</button>
+  </view>
+
+  <view wx:else class="list">
+    <view
+      class="record-card"
+      wx:for="{{list}}"
+      wx:key="id"
+      data-id="{{item.id}}"
+      bindtap="onTapRecord"
+    >
+      <view class="record-top">
+        <text class="record-time">{{item.time}}</text>
+        <view class="record-tags">
+          <text class="tag {{item.statusClass}}">{{item.statusText}}</text>
+          <text class="sync-tag {{item.syncMuted ? 'sync-ok' : ''}}">{{item.syncBadge}}</text>
+        </view>
+      </view>
+      <view class="record-place">{{item.place}}</view>
+      <view wx:if="{{item.patrolLine}}" class="record-patrol">{{item.patrolLine}}</view>
+      <view class="record-meta">巡查员：{{item.inspector}}</view>
+      <view wx:if="{{item.status === 'hazard' && item.hazardDesc}}" class="record-desc">{{item.hazardDesc}}</view>
+      <view
+        wx:if="{{item.status === 'hazard' && item.voicePath}}"
+        class="voice-chip"
+        catchtap="playVoice"
+        data-path="{{item.voicePath}}"
+      >▶ 语音 {{item.voiceDurationSec || 0}} 秒</view>
+      <view wx:if="{{item.images && item.images.length}}" class="record-imgs">
+        <image
+          class="record-img"
+          wx:for="{{item.images}}"
+          wx:for-item="img"
+          wx:key="*this"
+          src="{{img}}"
+          mode="aspectFill"
+        />
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,280 @@
+.page {
+  min-height: 100vh;
+  background: #f2f7ff;
+  padding: 24rpx;
+  padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+.card {
+  background: #ffffff;
+  border: 1rpx solid #dbe7ff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 24rpx;
+}
+
+.card-title {
+  font-size: 30rpx;
+  color: #124b97;
+  font-weight: 600;
+  margin-bottom: 16rpx;
+}
+
+.map-card {
+  padding-bottom: 16rpx;
+}
+
+.map-wrap {
+  position: relative;
+  border-radius: 12rpx;
+  overflow: hidden;
+  border: 1rpx solid #e3edff;
+}
+
+.map-placeholder {
+  width: 100%;
+  height: 360rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26rpx;
+  color: #6b7f96;
+  background: linear-gradient(180deg, #e8f2ff 0%, #f7fbff 100%);
+}
+
+.route-map {
+  width: 100%;
+  height: 360rpx;
+}
+
+.map-legend {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 12rpx 16rpx;
+  background: #f7fbff;
+  border-top: 1rpx solid #e3edff;
+}
+
+.legend-line {
+  width: 40rpx;
+  height: 6rpx;
+  border-radius: 3rpx;
+  background: #1677ff;
+  opacity: 0.65;
+}
+
+.legend-text {
+  font-size: 22rpx;
+  color: #6b7f96;
+}
+
+.map-actions {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 16rpx;
+  flex-wrap: wrap;
+}
+
+.ghost-btn {
+  flex: 1;
+  min-width: 200rpx;
+  border-radius: 12rpx;
+  font-size: 24rpx;
+  background: #f0f6ff !important;
+  color: #124b97 !important;
+  border: 1rpx solid #c8ddff !important;
+}
+
+.ghost-btn.primary-outline {
+  background: #fff !important;
+  color: #1677ff !important;
+  border-color: #1677ff !important;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1rpx solid #edf2ff;
+  padding: 18rpx 0;
+}
+
+.label {
+  color: #6b7f96;
+  font-size: 26rpx;
+}
+
+.value {
+  color: #24384f;
+  font-size: 26rpx;
+  max-width: 420rpx;
+  text-align: right;
+}
+
+.field {
+  padding: 18rpx 0;
+  border-bottom: 1rpx solid #edf2ff;
+}
+
+.field:last-of-type {
+  border-bottom: none;
+}
+
+.field .label {
+  display: block;
+  margin-bottom: 12rpx;
+}
+
+.place-input {
+  min-height: 80rpx;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 160rpx;
+  padding: 16rpx;
+  box-sizing: border-box;
+  border: 1rpx solid #e3edff;
+  border-radius: 12rpx;
+  font-size: 26rpx;
+  color: #24384f;
+  background: #fbfdff;
+}
+
+.radio-group {
+  display: flex;
+  gap: 40rpx;
+  padding-top: 4rpx;
+}
+
+.radio-item {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  font-size: 26rpx;
+  color: #24384f;
+}
+
+.img-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.img-thumb {
+  position: relative;
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+  border: 1rpx solid #e3edff;
+}
+
+.img {
+  width: 100%;
+  height: 100%;
+}
+
+.img-del {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 44rpx;
+  height: 44rpx;
+  line-height: 40rpx;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 32rpx;
+  border-bottom-left-radius: 12rpx;
+}
+
+.img-add {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 12rpx;
+  border: 2rpx dashed #b8cff7;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f7fbff;
+}
+
+.img-add-plus {
+  font-size: 48rpx;
+  color: #1677ff;
+  line-height: 1;
+}
+
+.img-add-text {
+  font-size: 22rpx;
+  color: #6b7f96;
+  margin-top: 8rpx;
+}
+
+.hint {
+  font-size: 24rpx;
+  padding: 12rpx 16rpx;
+  border-radius: 10rpx;
+  margin-bottom: 12rpx;
+}
+
+.hint.err {
+  background: #fff2f0;
+  color: #cf1322;
+  border: 1rpx solid #ffccc7;
+}
+
+.hint.fire {
+  background: #fff7e6;
+  color: #ad4e00;
+  border: 1rpx solid #ffd591;
+}
+
+.patrol-row {
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.patrol-act {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10rpx;
+  max-width: 440rpx;
+}
+
+.patrol-hint {
+  font-size: 24rpx;
+  line-height: 1.35;
+}
+
+.mini-start {
+  margin: 0 !important;
+  border-radius: 10rpx !important;
+  font-size: 22rpx !important;
+  padding: 0 20rpx !important;
+  background: #f0f6ff !important;
+  color: #124b97 !important;
+  border: 1rpx solid #c8ddff !important;
+}
+
+.patrol-note {
+  font-size: 22rpx;
+  color: #8a9aad;
+  line-height: 1.45;
+  padding: 8rpx 0 12rpx;
+  border-bottom: 1rpx solid #edf2ff;
+}
+
+.btn {
+  margin-top: 26rpx;
+  border: none;
+  border-radius: 14rpx;
+  color: #ffffff;
+  background: linear-gradient(135deg, #0b67d2, #2d8fff);
+  font-size: 30rpx;
+}

@@ -1,0 +1,204 @@
+<view class="page">
+  <view class="sync-hint" wx:if="{{syncing}}">正在同步云端配置…</view>
+
+  <!-- 总开关 -->
+  <view class="card">
+    <view class="card-head">
+      <text class="card-title">通知总开关</text>
+      <switch
+        checked="{{settings.masterEnabled}}"
+        color="#165DFF"
+        bindchange="onMasterChange"
+      />
+    </view>
+    <text class="card-desc">关闭后，将暂停所有预警推送；再次打开将恢复关闭前的分类设置。</text>
+  </view>
+
+  <!-- 分类 -->
+  <view class="card">
+    <view class="section-title">预警分类</view>
+    <view class="cell-row">
+      <text class="cell-label">火险等级预警（Ⅰ~Ⅴ级）</text>
+      <switch
+        checked="{{settings.categories.fireRiskLevels}}"
+        disabled="{{formDisabled}}"
+        color="#165DFF"
+        data-key="fireRiskLevels"
+        bindchange="onCategoryChange"
+      />
+    </view>
+    <view class="cell-row">
+      <text class="cell-label">雷电 / 干旱预警</text>
+      <switch
+        checked="{{settings.categories.lightningDrought}}"
+        disabled="{{formDisabled}}"
+        color="#165DFF"
+        data-key="lightningDrought"
+        bindchange="onCategoryChange"
+      />
+    </view>
+    <view class="cell-row">
+      <text class="cell-label">火情上报通知</text>
+      <switch
+        checked="{{settings.categories.fireReportNotify}}"
+        disabled="{{formDisabled}}"
+        color="#165DFF"
+        data-key="fireReportNotify"
+        bindchange="onCategoryChange"
+      />
+    </view>
+    <view class="cell-row">
+      <text class="cell-label">巡查任务提醒</text>
+      <switch
+        checked="{{settings.categories.patrolReminder}}"
+        disabled="{{formDisabled}}"
+        color="#165DFF"
+        data-key="patrolReminder"
+        bindchange="onCategoryChange"
+      />
+    </view>
+  </view>
+
+  <!-- 渠道 -->
+  <view class="card">
+    <view class="section-title">推送渠道</view>
+    <view class="cell-row">
+      <text class="cell-label">微信服务通知</text>
+      <switch
+        checked="{{settings.channels.serviceTemplate}}"
+        disabled="{{formDisabled}}"
+        color="#165DFF"
+        data-key="serviceTemplate"
+        bindchange="onChannelChange"
+      />
+    </view>
+    <view class="cell-row">
+      <text class="cell-label">小程序内消息</text>
+      <switch
+        checked="{{settings.channels.inApp}}"
+        disabled="{{formDisabled}}"
+        color="#165DFF"
+        data-key="inApp"
+        bindchange="onChannelChange"
+      />
+    </view>
+    <view class="cell-row">
+      <text class="cell-label">短信推送</text>
+      <switch
+        checked="{{settings.channels.sms}}"
+        disabled="{{formDisabled}}"
+        color="#165DFF"
+        data-key="sms"
+        bindchange="onChannelChange"
+      />
+    </view>
+  </view>
+
+  <!-- 免打扰 -->
+  <view class="card">
+    <view class="section-title">免打扰时段</view>
+    <view class="cell-row">
+      <text class="cell-label">启用免打扰</text>
+      <switch
+        checked="{{settings.dnd.enabled}}"
+        disabled="{{formDisabled}}"
+        color="#165DFF"
+        bindchange="onDndEnabledChange"
+      />
+    </view>
+    <view class="cell-row picker-row" wx:if="{{settings.dnd.enabled}}">
+      <text class="cell-label">开始</text>
+      <picker mode="time" value="{{settings.dnd.start}}" disabled="{{formDisabled}}" bindchange="onDndStartChange">
+        <view class="picker-value">{{settings.dnd.start}}</view>
+      </picker>
+    </view>
+    <view class="cell-row picker-row" wx:if="{{settings.dnd.enabled}}">
+      <text class="cell-label">结束</text>
+      <picker mode="time" value="{{settings.dnd.end}}" disabled="{{formDisabled}}" bindchange="onDndEndChange">
+        <view class="picker-value">{{settings.dnd.end}}</view>
+      </picker>
+    </view>
+  </view>
+
+  <!-- 区域 -->
+  <view class="card">
+    <view class="section-title">区域与范围</view>
+    <view class="cell-row picker-row">
+      <text class="cell-label">关注林区</text>
+      <picker
+        mode="selector"
+        range="{{forestNames}}"
+        value="{{settings.region.forestIndex}}"
+        disabled="{{formDisabled}}"
+        bindchange="onForestChange"
+      >
+        <view class="picker-value">{{forestNames[settings.region.forestIndex]}}</view>
+      </picker>
+    </view>
+    <view class="cell-row picker-row">
+      <text class="cell-label">关注网格</text>
+      <picker
+        mode="selector"
+        range="{{grids}}"
+        value="{{settings.region.gridIndex}}"
+        disabled="{{formDisabled}}"
+        bindchange="onGridChange"
+      >
+        <view class="picker-value">{{grids[settings.region.gridIndex]}}</view>
+      </picker>
+    </view>
+    <view class="slider-block">
+      <view class="slider-label">预警接收半径（{{settings.region.radiusKm}} km）</view>
+      <slider
+        min="1"
+        max="50"
+        step="1"
+        show-value
+        value="{{settings.region.radiusKm}}"
+        disabled="{{formDisabled}}"
+        activeColor="#165DFF"
+        backgroundColor="#dbe7ff"
+        block-color="#165DFF"
+        bindchange="onRadiusChange"
+      />
+    </view>
+  </view>
+
+  <!-- 内容 -->
+  <view class="card">
+    <view class="section-title">内容与播报</view>
+    <view class="cell-row picker-row">
+      <text class="cell-label">预警模板</text>
+      <picker
+        mode="selector"
+        range="{{templateLabels}}"
+        value="{{templateIndex}}"
+        disabled="{{formDisabled}}"
+        bindchange="onTemplateChange"
+      >
+        <view class="picker-value">{{templateLabels[templateIndex]}}</view>
+      </picker>
+    </view>
+    <view class="cell-row">
+      <text class="cell-label">语音播报</text>
+      <switch
+        checked="{{settings.content.voiceBroadcast}}"
+        disabled="{{formDisabled}}"
+        color="#165DFF"
+        bindchange="onVoiceChange"
+      />
+    </view>
+  </view>
+
+  <!-- 最近 7 天记录 -->
+  <view class="card log-card">
+    <view class="section-title">最近 7 天预警接收</view>
+    <view class="log-empty" wx:if="{{!logs.length}}">暂无接收记录，可在预警推送到达后写入日志。</view>
+    <view class="log-item" wx:for="{{logs}}" wx:key="id">
+      <view class="log-time">{{item.time}}</view>
+      <view class="log-title">{{item.title}}</view>
+      <view class="log-summary">{{item.summary}}</view>
+      <view class="log-level" wx:if="{{item.level}}">{{item.level}}</view>
+    </view>
+  </view>
+</view>

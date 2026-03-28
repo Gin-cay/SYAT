@@ -1,0 +1,52 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/warning/warning",
+    "pages/mine/mine",
+    "pages/report/report",
+    "pages/checkin/checkin",
+    "pages/profile/profile",
+    "pages/patrol-records/patrol-records"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#165DFF",
+    "navigationBarTitleText": "林业防火预警监测平台",
+    "navigationBarTextStyle": "white"
+  },
+  "tabBar": {
+    "color": "#666",
+    "selectedColor": "#165DFF",
+    "backgroundColor": "#fff",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/warning/warning",
+        "text": "预警"
+      },
+      {
+        "pagePath": "pages/mine/mine",
+        "text": "我的"
+      }
+    ]
+  },
+  "requiredPrivateInfos": [
+    "getLocation",
+    "onLocationChange",
+    "startLocationUpdate",
+    "startLocationUpdateBackground",
+    "chooseAddress",
+    "chooseLocation",
+    "choosePoi",
+    "getFuzzyLocation"
+  ],
+  "permission": {
+    "scope.userLocation": {
+      "desc": "你的位置信息将用于巡查打卡和火情上报定位"
+    }
+  },
+  "sitemapLocation": "sitemap.json"
+}

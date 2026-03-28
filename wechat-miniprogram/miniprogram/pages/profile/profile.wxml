@@ -1,0 +1,91 @@
+<view class="page">
+  <lang-switch />
+
+  <!-- 顶部栏：标题 + 保存按钮 -->
+  <view class="topbar">
+    <text class="top-title">{{L.editProfile}}</text>
+  </view>
+
+  <!-- 头像编辑区 -->
+  <view class="card hero-card">
+    <view class="avatar-block" bindtap="onChooseAvatar">
+      <image
+        wx:if="{{avatarPreview}}"
+        class="avatar-img"
+        src="{{avatarPreview}}"
+        mode="aspectFill"
+      />
+      <view wx:else class="avatar-fallback">{{avatarLetter}}</view>
+    </view>
+
+    <button class="change-btn" bindtap="onChooseAvatar">{{L.changeAvatar}}</button>
+
+    <view class="field name-field">
+      <text class="label">姓名</text>
+      <input
+        class="input"
+        value="{{name}}"
+        placeholder="请输入姓名"
+        maxlength="20"
+        bindinput="onNameInput"
+      />
+    </view>
+  </view>
+
+  <!-- 表单区域：手机号、职务 -->
+  <view class="card form-card">
+    <view class="section-title">{{L.phone}} / {{L.job}}</view>
+
+    <view class="field">
+      <text class="label">{{L.phone}}</text>
+
+      <view class="phone-row">
+        <input
+          class="input {{phoneError ? 'input-err' : ''}}"
+          value="{{phone}}"
+          placeholder="请输入手机号"
+          type="number"
+          maxlength="11"
+          bindinput="onPhoneInput"
+        />
+
+        <button
+          class="mini-ghost"
+          size="mini"
+          bindtap="onEnablePhoneEdit"
+          disabled="{{smsCooldown > 0 || smsBusy}}"
+        >
+          {{smsBtnText}}
+        </button>
+      </view>
+
+      <view wx:if="{{showSmsCodeInput}}" class="code-row">
+        <input
+          class="code-input"
+          value="{{smsCode}}"
+          placeholder="验证码（模拟）"
+          maxlength="6"
+          bindinput="onCodeInput"
+        />
+        <button class="mini-ghost" size="mini" bindtap="onResendCode">{{L.resendCode}}</button>
+      </view>
+
+      <text wx:if="{{phoneError}}" class="err">{{phoneError}}</text>
+    </view>
+
+    <view class="field">
+      <text class="label">{{L.job}}</text>
+      <picker mode="selector" range="{{jobOptions}}" value="{{jobIndex}}" bindchange="onJobChange">
+        <view class="picker-val">{{jobOptions[jobIndex]}}</view>
+      </picker>
+    </view>
+  </view>
+
+  <!-- 底部操作区 -->
+  <view class="bottom-actions">
+    <button class="btn btn-cancel" bindtap="onCancel">{{L.resetCancel}}</button>
+    <button class="btn btn-save" bindtap="onSave">{{L.save}}</button>
+  </view>
+
+  <view class="safe-bottom"></view>
+</view>

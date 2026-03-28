@@ -1,0 +1,69 @@
+<view class="page">
+  <view class="card">
+    <view class="title">火情上报</view>
+
+    <view class="field">
+      <view class="label">上报时间</view>
+      <input class="input disabled" value="{{form.reportTime}}" disabled />
+    </view>
+
+    <view class="field">
+      <view class="label">上报人</view>
+      <view class="reporter-row">
+        <text class="reporter-name">{{form.reporterName}}</text>
+        <text class="reporter-phone" wx:if="{{form.reporterPhone}}">{{form.reporterPhone}}</text>
+      </view>
+    </view>
+
+    <view class="field">
+      <view class="label">位置与地图微调</view>
+      <view class="map-wrap" wx:if="{{hasLocation}}">
+        <map
+          class="map"
+          latitude="{{latNum}}"
+          longitude="{{lngNum}}"
+          scale="{{mapScale}}"
+          markers="{{markers}}"
+          show-location
+        />
+      </view>
+      <view class="map-placeholder" wx:else>获取定位后将显示地图，可在此核对火情落点</view>
+
+      <view class="location-row">
+        <input
+          class="input location-input"
+          placeholder="位置描述（可手动补充）"
+          value="{{form.location}}"
+          bindinput="onLocationInput"
+        />
+        <button class="map-btn" bindtap="onRefreshLocation">刷新定位</button>
+      </view>
+      <button class="map-btn map-btn-secondary" bindtap="onChooseLocationManual">地图微调</button>
+      <view class="location-tip" wx:if="{{form.latitude && form.longitude}}">
+        坐标：{{form.latitude}}, {{form.longitude}}
+      </view>
+    </view>
+
+    <view class="field">
+      <view class="label">现场图片（最多3张，支持拍照/相册）</view>
+      <view class="image-actions">
+        <button class="img-action" size="mini" bindtap="onClearAndReselectImages">清空并重新选择</button>
+      </view>
+      <view class="image-list">
+        <view class="image-item" wx:for="{{form.images}}" wx:key="*this">
+          <image
+            class="preview"
+            src="{{item}}"
+            mode="aspectFill"
+            bindtap="onPreviewImage"
+            data-src="{{item}}"
+          />
+          <view class="remove" data-index="{{index}}" bindtap="onRemoveImage">×</view>
+        </view>
+        <view class="upload-box" wx:if="{{form.images.length < 3}}" bindtap="onChooseImage">+ 添加</view>
+      </view>
+    </view>
+
+    <button class="btn" bindtap="submitReport">提交火情上报</button>
+  </view>
+</view>

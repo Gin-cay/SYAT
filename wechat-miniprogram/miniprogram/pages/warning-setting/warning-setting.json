@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "预警消息设置",
+  "navigationBarBackgroundColor": "#165DFF",
+  "navigationBarTextStyle": "white",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark",
+  "usingComponents": {}
+}

@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "预警中心",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "lang-switch": "/components/lang-switch/lang-switch"
+  }
+}

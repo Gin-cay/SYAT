@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "巡查打卡",
+  "usingComponents": {
+    "voice-recorder": "/components/voice-recorder/index"
+  }
+}

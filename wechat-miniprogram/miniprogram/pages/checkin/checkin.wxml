@@ -1,0 +1,120 @@
+<view class="page">
+  <view class="card map-card">
+    <view class="card-title">巡查路线示意</view>
+
+    <view class="map-wrap">
+      <view wx:if="{{!showRouteMap}}" class="map-placeholder">已隐藏路线示意，可开启查看</view>
+      <view wx:if="{{showRouteMap && !hasMap}}" class="map-placeholder">{{locating ? '地图加载中…' : '获取定位后将显示路线示意'}}</view>
+
+      <map
+        wx:if="{{showRouteMap && hasMap}}"
+        class="route-map"
+        latitude="{{latitude}}"
+        longitude="{{longitude}}"
+        scale="{{mapScale}}"
+        markers="{{markers}}"
+        polyline="{{polyline}}"
+        show-location
+      ></map>
+
+      <view wx:if="{{showRouteMap && hasMap}}" class="map-legend">
+        <view class="legend-line"></view>
+        <text class="legend-text">蓝色为建议巡查闭环路线（示意）</text>
+      </view>
+    </view>
+
+    <view class="map-actions">
+      <view class="toggle-wrap">
+        <text class="toggle-label">显示路线地图</text>
+        <switch checked="{{showRouteMap}}" color="#25b879" bindchange="onToggleRouteMap" />
+      </view>
+
+      <button class="ghost-btn" size="mini" bindtap="refreshLocation" disabled="{{locating}}">
+        {{locating ? '定位中…' : '重新获取定位'}}
+      </button>
+
+      <button class="ghost-btn primary-outline" size="mini" bindtap="onPickMapLocation">地图选点</button>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">巡查打卡信息</view>
+
+    <view wx:if="{{highFireRiskAltitude}}" class="hint fire">{{altitudeTip}}</view>
+    <view wx:if="{{locationError}}" class="hint err">{{locationError}}</view>
+
+    <view class="field">
+      <text class="label">巡查地点</text>
+      <textarea
+        class="textarea place-input"
+        value="{{patrolPlace}}"
+        placeholder="等待自动定位，也可手动输入或地图选点"
+        auto-height
+        maxlength="200"
+        bindinput="onPatrolPlaceInput"
+      />
+    </view>
+
+    <view class="row">
+      <text class="label">巡查人员</text>
+      <text class="value">{{inspectorName}}</text>
+    </view>
+
+    <view class="row">
+      <text class="label">巡查时间</text>
+      <text class="value">{{checkTime}}</text>
+    </view>
+
+    <view class="field">
+      <text class="label">巡查情况</text>
+      <radio-group class="radio-group" bindchange="onPatrolStatusChange">
+        <label class="radio-item">
+          <radio value="normal" checked="{{patrolStatus === 'normal'}}" color="#1677FF" />
+          <text>正常</text>
+        </label>
+        <label class="radio-item">
+          <radio value="hazard" checked="{{patrolStatus === 'hazard'}}" color="#1677FF" />
+          <text>发现隐患</text>
+        </label>
+      </radio-group>
+    </view>
+
+    <block wx:if="{{patrolStatus === 'hazard'}}">
+      <view class="field">
+        <text class="label">隐患描述</text>
+        <textarea
+          class="textarea"
+          value="{{hazardDesc}}"
+          placeholder="请输入隐患发生位置、诱因、风险提示等（可选：仅描述或仅上传图片）"
+          maxlength="500"
+          bindinput="onHazardDescInput"
+        />
+      </view>
+
+      <view class="field">
+        <text class="label">隐患图片</text>
+        <view class="img-grid">
+          <view
+            class="img-thumb"
+            wx:for="{{hazardImages}}"
+            wx:key="*this"
+            data-index="{{index}}"
+            bindtap="previewHazardImage"
+          >
+            <image class="img" src="{{item}}" mode="aspectFill" />
+            <view class="img-del" data-index="{{index}}" catchtap="removeHazardImage">×</view>
+          </view>
+
+          <view class="img-add" bindtap="chooseHazardImages" wx:if="{{hazardImages.length < 9}}">
+            <text class="img-add-plus">+</text>
+            <text class="img-add-text">上传</text>
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <button class="btn" bindtap="submitCheckin" loading="{{submitting}}" disabled="{{submitting}}">
+      确认打卡
+    </button>
+  </view>
+</view>

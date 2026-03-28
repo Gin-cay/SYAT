@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "我的",
+  "usingComponents": {
+    "lang-switch": "/components/lang-switch/lang-switch"
+  }
+}

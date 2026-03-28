@@ -1,0 +1,79 @@
+<view class="page">
+  <view class="hero">
+    <view class="hero-title">事前预警 · 气象火险</view>
+    <view class="hero-sub">雷电、风速、湿度、干旱指数综合推演，热力图表示未来6小时相对强度（非精确定位燃烧）</view>
+  </view>
+
+  <view wx:if="{{loading}}" class="card muted">正在结合位置与气象数据推演…</view>
+  <view wx:if="{{err}}" class="card err">{{err}}</view>
+
+  <block wx:if="{{!loading && !err}}">
+    <view wx:if="{{fromDemo}}" class="card demo">连接真实气象后，本提示将消失；请在微信公众平台配置 request 域名 api.open-meteo.com</view>
+
+    <view wx:for="{{alerts}}" wx:for-index="idx" wx:key="idx" class="alert {{item.level}}">
+      <view class="alert-t">{{item.title}}</view>
+      <view class="alert-d">{{item.text}}</view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">未来6小时 · 火险热力示意</view>
+      <view class="headline">{{headline}}</view>
+      <map
+        class="risk-map"
+        latitude="{{lat}}"
+        longitude="{{lng}}"
+        scale="{{scale}}"
+        circles="{{heatCircles}}"
+        markers="{{markers}}"
+        show-location
+      ></map>
+      <view class="legend">
+        <text class="lg g">低</text>
+        <text class="lg y">中</text>
+        <text class="lg o">较高</text>
+        <text class="lg r">高</text>
+        <text class="lg-note">圆斑为中心周边格网叠色，峰值取自6小时火险序列</text>
+      </view>
+      <view class="updated">更新 {{updatedText}}</view>
+    </view>
+
+    <view class="metrics">
+      <view class="metric">
+        <text class="m-v">{{metrics.humidity}}%</text>
+        <text class="m-k">湿度（均）</text>
+      </view>
+      <view class="metric">
+        <text class="m-v">{{metrics.windMs}} m/s</text>
+        <text class="m-k">风速（均）·约{{metrics.windLevel}}级</text>
+      </view>
+      <view class="metric">
+        <text class="m-v">{{metrics.lightning}}</text>
+        <text class="m-k">雷电活动度（0–100）</text>
+      </view>
+      <view class="metric warn">
+        <text class="m-v">{{metrics.drought}}</text>
+        <text class="m-k">干旱指数（0–100）</text>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">逐小时概要</view>
+      <view class="row-h">
+        <text class="c1">时次</text>
+        <text class="c2">火险</text>
+        <text class="c2">干旱</text>
+        <text class="c2">雷电度</text>
+        <text class="c3">湿/风</text>
+      </view>
+      <view class="row-r" wx:for="{{timeline}}" wx:key="tlab">
+        <text class="c1">{{item.tlab}}</text>
+        <text class="c2">{{item.fire}}</text>
+        <text class="c2">{{item.drought}}</text>
+        <text class="c2">{{item.lightning}}</text>
+        <text class="c3">{{item.rh}}% / {{item.wind}}</text>
+      </view>
+    </view>
+  </block>
+
+  <view class="foot-tip">无人区与高山标红为规则预警；热力为模型估算，必要时以主管单位正式发布为准。</view>
+</view>

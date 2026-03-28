@@ -1,0 +1,8 @@
+{
+  "name": "ai-forest-risk",
+  "version": "1.0.0",
+  "description": "Baidu EasyDL proxy for forest fire risk",
+  "main": "index.js",
+  "dependencies": {}
+}
+

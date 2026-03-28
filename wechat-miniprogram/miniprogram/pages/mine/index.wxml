@@ -1,0 +1,21 @@
+<view class="page">
+  <view class="profile-card" bindtap="goProfile">
+    <image wx:if="{{userInfo.avatarUrl}}" class="avatar avatar-img" src="{{userInfo.avatarUrl}}" mode="aspectFill" />
+    <view wx:else class="avatar">{{userInfo.avatarText}}</view>
+    <view class="profile-meta">
+      <view class="name">{{userInfo.name}}</view>
+      <view class="role">{{userInfo.role}}</view>
+      <view class="forest">{{userInfo.forest}}</view>
+    </view>
+  </view>
+
+  <view class="menu-card">
+    <view class="menu-item" wx:for="{{menuList}}" wx:key="key" data-key="{{item.key}}" data-title="{{item.title}}" bindtap="onTapMenu">
+      <view class="menu-title">{{item.title}}</view>
+      <view class="menu-arrow">></view>
+    </view>
+  </view>
+
+  <button class="logout-btn" bindtap="onLogout">退出登录</button>
+  <view class="bottom-safe-area"></view>
+  </view>

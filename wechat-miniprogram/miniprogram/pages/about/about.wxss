@@ -1,0 +1,38 @@
+.page {
+  min-height: 100vh;
+  background: #f2f7ff;
+  padding: 24rpx;
+  box-sizing: border-box;
+}
+
+.card {
+  background: #ffffff;
+  border: 1rpx solid #dbe7ff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  box-shadow: 0 10rpx 28rpx rgba(22, 93, 255, 0.06);
+}
+
+.title {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #165DFF;
+  display: block;
+}
+
+.desc {
+  margin-top: 12rpx;
+  font-size: 26rpx;
+  color: #6b7f96;
+  line-height: 1.6;
+  display: block;
+}
+
+.back-btn {
+  margin-top: 22rpx;
+  border-radius: 14rpx;
+  background: #e5e6eb;
+  color: #4e5969;
+  border: none;
+  font-size: 30rpx;
+}

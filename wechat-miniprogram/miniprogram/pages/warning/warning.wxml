@@ -1,0 +1,172 @@
+<view class="page">
+  <!-- 顶部：全屏火险热力图（map + heatmap 图层；支持拖动缩放，不遮挡下方 AI 区） -->
+  <view class="heat-top">
+    <view wx:if="{{heat.mapPhase !== 'ready'}}" class="heat-map-placeholder">
+      <block wx:if="{{heat.mapPhase === 'loading'}}">加载地图…</block>
+      <block wx:else>请开启位置权限以查看热力图</block>
+    </view>
+    <!-- cover-view 必须作为 map 的子节点才能叠在地图上 -->
+    <map
+      wx:if="{{heat.mapPhase === 'ready'}}"
+      id="heatMap"
+      class="heat-map"
+      latitude="{{latitude}}"
+      longitude="{{longitude}}"
+      scale="{{scale}}"
+      polygons="{{riskPolygons}}"
+      show-location="{{true}}"
+    >
+      <cover-view class="heat-legend">
+        <cover-view class="heat-legend-inner">
+          <cover-view class="heat-lg heat-lg-safe">低风险：绿色（0~0.25）</cover-view>
+          <cover-view class="heat-lg heat-lg-mid">中风险：黄色（0.25~0.45）</cover-view>
+          <cover-view class="heat-lg heat-lg-high">高风险：红色（0.45~1）</cover-view>
+        </cover-view>
+        <cover-view class="heat-legend-meta">共 {{heatmapPoints.length}} 个点位 · 下拉刷新</cover-view>
+      </cover-view>
+    </map>
+  </view>
+
+  <view class="lang-under-map">
+    <lang-switch />
+  </view>
+  <view wx:if="{{heat.locationHint}}" class="heat-hint">{{heat.locationHint}}</view>
+
+  <!-- AI 火灾风险预警（直接集成在预警中心） -->
+  <view class="ai-card">
+    <view class="ai-hd">
+      <view class="ai-title">AI 火灾风险预警</view>
+      <view class="ai-badge">{{ai.count}}/3</view>
+    </view>
+    <view class="ai-sub">最多上传 3 张植被近景照片，自动压缩并调用 AI 分析（支持拍照/相册）。</view>
+
+    <view class="ai-actions">
+      <button class="ai-btn ai-btn-primary" type="default" bindtap="onAiChooseCamera" disabled="{{ai.busy}}">相机拍照</button>
+      <button class="ai-btn" type="default" bindtap="onAiChooseAlbum" disabled="{{ai.busy}}">相册选择</button>
+    </view>
+
+    <view wx:if="{{ai.count > 0}}" class="ai-preview-wrap">
+      <view class="ai-grid">
+        <view class="ai-thumb" wx:for="{{ai.images}}" wx:key="id">
+          <image class="ai-thumb-img" mode="aspectFill" src="{{item.localPath}}" bindtap="onAiPreviewImage" data-idx="{{index}}" />
+          <view class="ai-thumb-del" bindtap="onAiRemoveOne" data-id="{{item.id}}">×</view>
+        </view>
+      </view>
+      <view class="ai-mini-row">
+        <button class="ai-mini ai-mini-solid" type="default" bindtap="onAiAnalyze" disabled="{{ai.busy}}">重新分析</button>
+        <button class="ai-mini ai-mini-solid2" type="default" bindtap="onAiSaveRecord" disabled="{{ai.busy}}">保存记录</button>
+        <button class="ai-mini" type="default" bindtap="onAiClearAll" disabled="{{ai.busy}}">清空</button>
+      </view>
+    </view>
+
+    <view wx:else class="ai-empty">
+      <view class="ai-empty-text">请选择或拍摄照片后开始分析</view>
+    </view>
+
+    <view wx:if="{{ai.netError}}" class="ai-neterr">
+      <view class="ai-neterr-text">网络异常或接口请求失败，请检查网络后重试。</view>
+      <button class="ai-btn ai-btn-solid" type="default" bindtap="onAiRetry" disabled="{{ai.busy}}">重试</button>
+    </view>
+
+    <view wx:if="{{ai.result}}" class="ai-result">
+      <view class="ai-result-hd">
+        <view class="ai-result-title">分析结果</view>
+        <view class="ai-tag ai-tag-{{ai.view.levelKey}}">{{ai.result.data.risk_level}}风险</view>
+      </view>
+
+      <view class="ai-metric">
+        <view class="ai-metric-hd">
+          <view class="ai-k">综合风险系数</view>
+          <view class="ai-v">{{ai.view.riskScoreText}}</view>
+        </view>
+        <view class="ai-bar">
+          <view class="ai-bar-fill ai-level-{{ai.view.levelKey}}" style="width: {{ai.view.riskScorePct}}%;"></view>
+        </view>
+      </view>
+
+      <view class="ai-grid2">
+        <view class="ai-metric">
+          <view class="ai-metric-hd">
+            <view class="ai-k">植被密度</view>
+            <view class="ai-v">{{ai.view.vegText}}</view>
+          </view>
+          <view class="ai-bar">
+            <view class="ai-bar-fill ai-level-{{ai.view.levelKey}}" style="width: {{ai.view.vegPct}}%;"></view>
+          </view>
+        </view>
+        <view class="ai-metric">
+          <view class="ai-metric-hd">
+            <view class="ai-k">干燥程度</view>
+            <view class="ai-v">{{ai.view.dryText}}</view>
+          </view>
+          <view class="ai-bar">
+            <view class="ai-bar-fill ai-level-{{ai.view.levelKey}}" style="width: {{ai.view.dryPct}}%;"></view>
+          </view>
+        </view>
+      </view>
+
+      <view class="ai-msg">{{ai.view.messageText}}</view>
+    </view>
+
+    <view wx:if="{{ai.history.length}}" class="ai-history">
+      <view class="ai-history-hd">
+        <view class="ai-history-title">最近记录</view>
+        <view class="ai-history-badge">{{ai.history.length}}/10</view>
+      </view>
+      <view class="ai-history-list">
+        <view class="ai-h-item" wx:for="{{ai.history}}" wx:key="id" bindtap="onAiOpenHistory" data-id="{{item.id}}">
+          <image class="ai-h-thumb" mode="aspectFill" src="{{item.thumbPath}}" />
+          <view class="ai-h-main">
+            <view class="ai-h-top">
+              <view class="ai-h-time">{{item.time}}</view>
+              <view class="ai-tag ai-tag-{{item.risk_level_key}} ai-tag-sm">{{item.risk_level}}</view>
+            </view>
+            <view class="ai-h-sub">风险系数：{{item.risk_score_text}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="filter-bar">
+    <view class="filter-item">
+      <view class="filter-label">{{L.filterLevel}}</view>
+      <picker mode="selector" range="{{levelOptions}}" value="{{levelIndex}}" bindchange="onLevelChange">
+        <view class="picker-value">
+          <text>{{levelOptions[levelIndex]}}</text>
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+    <view class="filter-divider"></view>
+    <view class="filter-item">
+      <view class="filter-label">{{L.filterTime}}</view>
+      <picker mode="selector" range="{{timeOptions}}" value="{{timeIndex}}" bindchange="onTimeChange">
+        <view class="picker-value">
+          <text>{{timeOptions[timeIndex]}}</text>
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+  </view>
+
+  <view class="list-wrap">
+    <view class="warning-item" wx:for="{{filteredWarnings}}" wx:key="id" bindtap="goDetail" data-id="{{item.id}}">
+      <view class="item-top">
+        <view class="warning-time">{{item.warningTime}}</view>
+        <view class="level-tag level-{{item.riskLevelKey}}">{{item.riskLevel}}</view>
+      </view>
+      <view class="warning-location">{{item.location}}</view>
+      <view class="item-bottom">
+        <view class="status-wrap">
+          <view class="status-dot status-dot-{{item.statusKey}}"></view>
+          <view class="warning-status status-{{item.statusKey}}">{{item.status}}</view>
+        </view>
+        <view class="detail-entry">{{L.viewDetail}}</view>
+      </view>
+    </view>
+    <view class="empty" wx:if="{{filteredWarnings.length === 0}}">
+      <view class="empty-text">{{L.emptyWarning}}</view>
+    </view>
+  </view>
+</view>
