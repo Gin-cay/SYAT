@@ -1,4 +1,17 @@
-<view class="page">
+<view class="warning-page">
+  <!-- 自定义导航栏：与小程序右上角胶囊对齐，右侧「汉语/藏语」切换 -->
+  <view class="warning-custom-nav" style="padding-top: {{statusBarHeight}}px;">
+    <view class="warning-nav-row" style="height: {{navBarHeight}}px;">
+      <text class="warning-nav-title">{{L.warningCenterTitle}}</text>
+      <view
+        class="warning-nav-lang-btn"
+        style="top: {{menuTopInNav}}px; height: {{menuHeight}}px; line-height: {{menuHeight}}px; right: {{langBtnRightPx}}px;"
+        bindtap="onToggleLang"
+      >{{navLangBtnText}}</view>
+    </view>
+  </view>
+
+  <view class="page" style="padding-top: {{totalNavHeight}}px;">
   <!-- 顶部：全屏火险热力图（map + heatmap 图层；支持拖动缩放，不遮挡下方 AI 区） -->
   <view class="heat-top">
     <view wx:if="{{heat.mapPhase !== 'ready'}}" class="heat-map-placeholder">
@@ -27,9 +40,6 @@
     </map>
   </view>
 
-  <view class="lang-under-map">
-    <lang-switch />
-  </view>
   <view wx:if="{{heat.locationHint}}" class="heat-hint">{{heat.locationHint}}</view>
 
   <!-- AI 火灾风险预警（直接集成在预警中心） -->
@@ -168,5 +178,6 @@
     <view class="empty" wx:if="{{filteredWarnings.length === 0}}">
       <view class="empty-text">{{L.emptyWarning}}</view>
     </view>
+  </view>
   </view>
 </view>

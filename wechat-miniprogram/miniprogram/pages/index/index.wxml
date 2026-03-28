@@ -1,48 +1,48 @@
 <view class="container">
   <view class="status-card {{riskCardClass}}" bindtap="goWarning">
     <view class="status-header">
-      <view class="status-title">事前火险研判</view>
+      <view class="status-title">{{i18n.indexPreRiskTitle}}</view>
       <view class="status-chip">{{riskChipText}}</view>
     </view>
     <view class="status-desc">{{statusDesc}}</view>
-    <view class="status-go">进入预警中心 · 热力图与气象 ›</view>
+    <view class="status-go">{{i18n.indexGoWarning}}</view>
   </view>
 
   <view class="data-grid">
     <view class="data-item">
-      <view class="data-label">今日火险等级</view>
+      <view class="data-label">{{i18n.indexTodayRisk}}</view>
       <view class="data-value">{{todayData.riskLevel}}</view>
     </view>
     <view class="data-item">
-      <view class="data-label">温度</view>
+      <view class="data-label">{{i18n.indexTemp}}</view>
       <view class="data-value">
         {{todayData.temperature}}
-        <text class="unit">°C</text>
+        <text class="unit">{{i18n.unitC}}</text>
       </view>
     </view>
     <view class="data-item">
-      <view class="data-label">湿度</view>
+      <view class="data-label">{{i18n.indexHumidity}}</view>
       <view class="data-value">
         {{todayData.humidity}}
-        <text class="unit">%</text>
+        <text class="unit">{{i18n.unitPercent}}</text>
       </view>
     </view>
     <view class="data-item">
-      <view class="data-label">风力</view>
+      <view class="data-label">{{i18n.indexWind}}</view>
       <view class="data-value">
         {{todayData.wind}}
-        <text class="unit">级</text>
+        <text class="unit">{{i18n.unitWind}}</text>
       </view>
     </view>
   </view>
 
   <view class="action-group">
-    <button class="action-btn patrol-btn" bindtap="onPatrolCheckin">防火巡查打卡</button>
-    <button class="action-btn report-btn" bindtap="onFireReport">火情上报</button>
+    <button class="action-btn patrol-btn" bindtap="onPatrolCheckin">{{i18n.indexPatrolBtn}}</button>
+    <button class="action-btn report-btn" bindtap="onFireReport">{{i18n.indexFireReportBtn}}</button>
   </view>
 
   <view class="history-card">
-    <view class="history-title">历史预警记录</view>
+    <view class="history-title">{{i18n.indexHistoryTitle}}</view>
     <view class="history-item" wx:for="{{historyList}}" wx:key="id">
       <view class="history-time">{{item.time}}</view>
       <view class="history-area">{{item.area}}</view>
@@ -50,15 +50,13 @@
     </view>
   </view>
 
-  <!-- 上报记录（离线会先缓存，联网后自动上传） -->
   <view class="emergency-records" wx:if="{{emergencyRecords.length}}">
-    <view class="history-title emergency-title">上报记录</view>
+    <view class="history-title emergency-title">{{i18n.indexEmergencyTitle}}</view>
     <view class="emergency-item" wx:for="{{emergencyRecords}}" wx:key="id">
       <view class="emergency-time">{{item.timeText}}</view>
       <view class="emergency-status">{{item.statusText}}</view>
     </view>
   </view>
 
-  <!-- 底部中间：紧急上报按钮 -->
-  <button class="emergency-btn" bindtap="onEmergencyReport">紧急上报</button>
+  <button class="emergency-btn" bindtap="onEmergencyReport">{{i18n.indexEmergencyBtn}}</button>
 </view>

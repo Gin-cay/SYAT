@@ -1,7 +1,7 @@
 <view class="page">
   <view class="card">
-    <text class="title">关于我们</text>
-    <text class="desc">林业防火预警监测平台（示例占位页）。后续可接入版本信息与联系渠道。</text>
+    <text class="title">{{i18n.aboutTitle}}</text>
+    <text class="desc">{{i18n.aboutDesc}}</text>
   </view>
-  <button class="back-btn" bindtap="goBack">返回</button>
+  <button class="back-btn" bindtap="goBack">{{i18n.back}}</button>
 </view>

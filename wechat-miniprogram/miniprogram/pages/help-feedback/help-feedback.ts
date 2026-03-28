@@ -1,24 +1,58 @@
-import type { FeedbackTicket, FeedbackTypeId } from "../../types/helpFeedback";
-import { FEEDBACK_STATUS_LABEL } from "../../types/helpFeedback";
-import { FAQ_CATEGORY_TABS, FAQ_LIST } from "../../utils/faqData";
+import type { FeedbackTicket, FeedbackTypeId, FeedbackStatus } from "../../types/helpFeedback";
+import { FAQ_LIST, FAQ_LIST_BO } from "../../utils/faqData";
 import { fetchFeedbackHistory, markTicketResolved, submitFeedback } from "../../utils/helpFeedbackService";
 
-const TYPE_OPTIONS: { id: FeedbackTypeId; label: string }[] = [
-  { id: "patrol", label: "巡查打卡" },
-  { id: "report", label: "火情上报" },
-  { id: "warning", label: "预警通知" },
-  { id: "account", label: "账号问题" },
-  { id: "other", label: "其他" },
-];
+const lang = require("../../utils/lang.js");
+const i18nBehavior = require("../../utils/i18nBehavior.js");
+
+function buildFaqTabs(L: Record<string, string>) {
+  return [
+    { key: "all" as const, label: L.hfTabAll },
+    { key: "patrol" as const, label: L.hfTabPatrol },
+    { key: "report" as const, label: L.hfTabReport },
+    { key: "warning" as const, label: L.hfTabWarning },
+    { key: "account" as const, label: L.hfTabAccount },
+  ];
+}
+
+function buildTypeOptions(L: Record<string, string>) {
+  return [
+    { id: "patrol" as FeedbackTypeId, label: L.hfTypePatrol },
+    { id: "report" as FeedbackTypeId, label: L.hfTypeReport },
+    { id: "warning" as FeedbackTypeId, label: L.hfTypeWarning },
+    { id: "account" as FeedbackTypeId, label: L.hfTypeAccount },
+    { id: "other" as FeedbackTypeId, label: L.hfTypeOther },
+  ];
+}
+
+function feedbackStatusLabel(L: Record<string, string>, s: FeedbackStatus) {
+  if (s === "pending") return L.hfStatusPending;
+  if (s === "processing") return L.hfStatusProcessing;
+  return L.hfStatusResolved;
+}
 
 Page({
+  behaviors: [i18nBehavior],
+
+  onI18nReady(L: Record<string, string>) {
+    wx.setNavigationBarTitle({ title: L.navTitleHelp });
+    this.setData({
+      faqTabs: buildFaqTabs(L),
+      typeOptions: buildTypeOptions(L),
+      "contact.wechatHint": L.hfWechatSample,
+      "contact.workTime": L.hfWorkTimeSample,
+    });
+    this.refreshFaq();
+    this.loadHistory();
+  },
+
   data: {
     searchKeyword: "",
-    faqTabs: FAQ_CATEGORY_TABS,
-    activeCat: "all" as typeof FAQ_CATEGORY_TABS[number]["key"],
+    faqTabs: buildFaqTabs(lang.getStrings("zh")),
+    activeCat: "all" as "all" | "patrol" | "report" | "warning" | "account",
     displayFaq: FAQ_LIST,
     expandedMap: {} as Record<string, boolean>,
-    typeOptions: TYPE_OPTIONS,
+    typeOptions: buildTypeOptions(lang.getStrings("zh")),
     typeIndex: 0,
     formContent: "",
     formImages: [] as string[],
@@ -27,9 +61,8 @@ Page({
     contact: {
       emergencyPhone: "12119",
       dutyPhone: "400-000-0000",
-      wechatHint: "请添加运营提供的企业微信（示例文案）",
-      workTime: "周一至周五 9:00–18:00；紧急值班 24h（按属地管理）",
-      /** 将二维码放在 miniprogram/images 下并在此填写路径，或留空显示占位 */
+      wechatHint: "",
+      workTime: "",
       qrUrl: "",
     },
     history: [] as Array<
@@ -38,6 +71,11 @@ Page({
   },
 
   onLoad() {
+    const L = lang.getStrings((getApp().globalData || {}).lang || "zh");
+    this.setData({
+      "contact.wechatHint": L.hfWechatSample,
+      "contact.workTime": L.hfWorkTimeSample,
+    });
     this.refreshFaq();
   },
 
@@ -46,9 +84,11 @@ Page({
   },
 
   refreshFaq() {
+    const isBo = (getApp().globalData || {}).lang === "bo";
+    const source = isBo ? FAQ_LIST_BO : FAQ_LIST;
     const kw = (this.data.searchKeyword || "").trim().toLowerCase();
     const cat = this.data.activeCat;
-    const list = FAQ_LIST.filter((item) => {
+    const list = source.filter((item) => {
       if (cat !== "all" && item.category !== cat) return false;
       if (!kw) return true;
       const q = item.question.toLowerCase();
@@ -67,7 +107,7 @@ Page({
   },
 
   onFaqTabTap(e: WechatMiniprogram.TouchEvent) {
-    const key = e.currentTarget.dataset.key as typeof FAQ_CATEGORY_TABS[number]["key"];
+    const key = e.currentTarget.dataset.key as typeof this.data.activeCat;
     if (!key) return;
     this.setData({ activeCat: key }, () => this.refreshFaq());
   },
@@ -92,8 +132,9 @@ Page({
   },
 
   onChooseImage() {
+    const L = lang.getStrings((getApp().globalData || {}).lang || "zh");
     const remain = 3 - this.data.formImages.length;
-    if (remain <= 0) return wx.showToast({ title: "最多3张图片", icon: "none" });
+    if (remain <= 0) return wx.showToast({ title: L.reportMaxImg, icon: "none" });
     wx.chooseImage({
       count: remain,
       sizeType: ["compressed"],
@@ -119,12 +160,13 @@ Page({
   },
 
   onSubmitFeedback() {
+    const L = lang.getStrings((getApp().globalData || {}).lang || "zh");
     if (this.data.submitting) return;
     const content = (this.data.formContent || "").trim();
     if (content.length < 5) {
-      return wx.showToast({ title: "请至少输入5字问题描述", icon: "none" });
+      return wx.showToast({ title: L.reportDescMin, icon: "none" });
     }
-    const type = TYPE_OPTIONS[this.data.typeIndex]?.id || "other";
+    const type = this.data.typeOptions[this.data.typeIndex]?.id || "other";
     this.setData({ submitting: true });
     submitFeedback({
       type,
@@ -133,7 +175,11 @@ Page({
       contact: this.data.formContact,
     })
       .then(({ feedbackNo }) => {
-        wx.showToast({ title: `提交成功 ${feedbackNo}`, icon: "success", duration: 2500 });
+        wx.showToast({
+          title: L.hfSubmitSuccessFmt.replace("{no}", feedbackNo),
+          icon: "success",
+          duration: 2500,
+        });
         this.setData({
           formContent: "",
           formImages: [],
@@ -143,7 +189,7 @@ Page({
         this.loadHistory();
       })
       .catch(() => {
-        wx.showToast({ title: "提交失败，请稍后重试", icon: "none" });
+        wx.showToast({ title: L.reportFail, icon: "none" });
       })
       .finally(() => {
         this.setData({ submitting: false });
@@ -151,13 +197,15 @@ Page({
   },
 
   loadHistory() {
+    const L = lang.getStrings((getApp().globalData || {}).lang || "zh");
+    const opts = buildTypeOptions(L);
     fetchFeedbackHistory().then((list) => {
       const mapped = list.map((t) => ({
         ...t,
         images: t.images || [],
-        statusLabel: FEEDBACK_STATUS_LABEL[t.status],
+        statusLabel: feedbackStatusLabel(L, t.status),
         timeText: this.formatTime(t.createdAt),
-        typeLabel: TYPE_OPTIONS.find((x) => x.id === t.type)?.label || "其他",
+        typeLabel: opts.find((x) => x.id === t.type)?.label || L.hfTypeOther,
       }));
       this.setData({ history: mapped });
     });
@@ -172,15 +220,16 @@ Page({
   },
 
   onMarkResolved(e: WechatMiniprogram.TouchEvent) {
+    const L = lang.getStrings((getApp().globalData || {}).lang || "zh");
     const no = String(e.currentTarget.dataset.no || "");
     if (!no) return;
     wx.showModal({
-      title: "确认已解决？",
-      content: "标记后可在列表中显示为已解决（仅本地与云端状态同步，实际以客服处理为准）。",
+      title: L.hfMarkConfirmTitle,
+      content: L.hfMarkConfirmContent,
       success: (res) => {
         if (!res.confirm) return;
         markTicketResolved(no).then(() => {
-          wx.showToast({ title: "已标记", icon: "success" });
+          wx.showToast({ title: L.hfMarked, icon: "success" });
           this.loadHistory();
         });
       },

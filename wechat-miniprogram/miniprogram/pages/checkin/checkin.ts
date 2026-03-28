@@ -4,6 +4,8 @@ import { bindNetworkFlush } from "../../utils/patrolSync";
 
 const patrolTrackSession = require("../../utils/patrolTrackSession.js");
 const { load } = require("../../utils/userProfileStorage.js");
+const lang = require("../../utils/lang.js");
+const i18nBehavior = require("../../utils/i18nBehavior.js");
 
 const ALT_FIRE_M = 3500;
 
@@ -22,6 +24,30 @@ function formatTs(ts: number) {
 }
 
 Page({
+  behaviors: [i18nBehavior],
+
+  onI18nReady(L: Record<string, string>) {
+    wx.setNavigationBarTitle({ title: L.navTitleCheckin });
+    const d = this.data;
+    if (d.highFireRiskAltitude && typeof d.lastAltM === "number") {
+      this.setData({
+        altitudeTip: L.checkinAltitudeLine.replace("{m}", String(Math.round(d.lastAltM))),
+      });
+    }
+    if (d.hasMap && d.markers && d.markers.length) {
+      const markers = [...d.markers];
+      const m0 = markers[0] as WechatMiniprogram.MapMarker;
+      markers[0] = {
+        ...m0,
+        callout: { content: L.calloutCurrent, display: m0.callout?.display || "BYCLICK" },
+      };
+      this.setData({ markers });
+    }
+    if (d.locationError) {
+      this.setData({ locationError: L.checkinLocErrorShort });
+    }
+  },
+
   data: {
     inspectorName: "",
     checkTime: "",
@@ -46,9 +72,10 @@ Page({
 
   onLoad() {
     const p = load();
+    const L = lang.getStrings((getApp().globalData || {}).lang || "zh");
     this.setData({
       checkTime: formatNow(),
-      inspectorName: p.name || "巡查员",
+      inspectorName: p.name || L.defaultInspector,
     });
     bindNetworkFlush();
     this.ensureTrackStartAt();
@@ -71,8 +98,9 @@ Page({
   },
 
   applyLocation(latitude: number, longitude: number, placeText: string, altM?: number) {
+    const L = lang.getStrings((getApp().globalData || {}).lang || "zh");
     const hasAlt = typeof altM === "number" && !Number.isNaN(altM);
-    const hi = hasAlt && altM > ALT_FIRE_M;
+    const hi = hasAlt && altM! > ALT_FIRE_M;
     const points = this.buildRoute(latitude, longitude);
     this.setData({
       locating: false,
@@ -82,7 +110,7 @@ Page({
       patrolPlace: placeText,
       lastAltM: hasAlt ? altM : undefined,
       highFireRiskAltitude: hi,
-      altitudeTip: hi ? `当前海拔约 ${Math.round(altM)}m，已进入高火险区域，请加强盯防。` : "",
+      altitudeTip: hi ? L.checkinAltitudeLine.replace("{m}", String(Math.round(altM!))) : "",
       markers: [
         {
           id: 1,
@@ -90,7 +118,7 @@ Page({
           longitude,
           width: 28,
           height: 28,
-          callout: { content: "当前位置", display: "BYCLICK" },
+          callout: { content: L.calloutCurrent, display: "BYCLICK" },
         },
       ],
       polyline: [{ points, color: "#1677FF99", width: 4 }],
@@ -98,24 +126,25 @@ Page({
   },
 
   refreshLocation() {
+    const L = lang.getStrings((getApp().globalData || {}).lang || "zh");
     this.setData({ locating: true, locationError: "" });
     wx.getLocation({
       type: "gcj02",
       isHighAccuracy: false,
       success: (res) => {
         const { latitude, longitude, altitude } = res;
-        const place = `当前定位（${latitude.toFixed(5)}，${longitude.toFixed(5)}）`;
+        const place = L.checkinLocCurrent.replace("{a}", latitude.toFixed(5)).replace("{b}", longitude.toFixed(5));
         this.applyLocation(latitude, longitude, place, altitude);
       },
       fail: () => {
         this.setData({
           locating: false,
-          locationError: "未能获取定位，请检查权限或在设置中开启位置权限。",
+          locationError: L.checkinLocErrorShort,
           patrolPlace: "",
         });
         wx.showModal({
-          title: "定位失败",
-          content: "需要位置权限以填充巡查地点并展示路线示意。可到系统或小程序设置中授权。",
+          title: L.checkinLocFailTitle,
+          content: L.checkinLocFailContent,
           showCancel: false,
         });
       },
@@ -161,8 +190,9 @@ Page({
   },
 
   chooseHazardImages() {
+    const L = lang.getStrings((getApp().globalData || {}).lang || "zh");
     const remain = 9 - this.data.hazardImages.length;
-    if (remain <= 0) return wx.showToast({ title: "最多9张图片", icon: "none" });
+    if (remain <= 0) return wx.showToast({ title: L.checkinMaxImg, icon: "none" });
     const append = (paths: string[]) => {
       this.setData({ hazardImages: this.data.hazardImages.concat(paths) });
     };
@@ -214,15 +244,16 @@ Page({
   },
 
   submitCheckin() {
+    const L = lang.getStrings((getApp().globalData || {}).lang || "zh");
     if (this.data.submitting) return;
     const place = (this.data.patrolPlace || "").trim();
-    if (!place) return wx.showToast({ title: "请先获取或填写巡查地点", icon: "none" });
+    if (!place) return wx.showToast({ title: L.checkinPlaceRequired, icon: "none" });
 
     if (this.data.patrolStatus === "hazard") {
       const desc = (this.data.hazardDesc || "").trim();
       const hasImages = this.data.hazardImages.length > 0;
       if (!desc && !hasImages) {
-        return wx.showToast({ title: "请填写隐患描述或上传图片", icon: "none" });
+        return wx.showToast({ title: L.checkinHazardRequired, icon: "none" });
       }
     }
 
@@ -260,7 +291,7 @@ Page({
       })
       .then(() => {
         this.setData({ submitting: false });
-        wx.showToast({ title: "打卡成功", icon: "success" });
+        wx.showToast({ title: L.checkinSuccess, icon: "success" });
         setTimeout(() => {
           wx.navigateBack({
             fail: () => wx.redirectTo({ url: "/pages/patrol-records/patrol-records" }),
@@ -269,7 +300,7 @@ Page({
       })
       .catch(() => {
         this.setData({ submitting: false });
-        wx.showToast({ title: "保存失败", icon: "none" });
+        wx.showToast({ title: L.checkinFail, icon: "none" });
       });
   },
 });

@@ -1,17 +1,27 @@
-const { FORESTS, load, save } = require("../../utils/userProfileStorage.js");
+const { load, save } = require("../../utils/userProfileStorage.js");
 const langUtils = require("../../utils/lang.js");
+const i18nBehavior = require("../../utils/i18nBehavior.js");
 
 const PHONE_RE = /^1[3-9]\\d{9}$/;
-const JOB_OPTIONS_CN = langUtils.getStrings("zh").jobOptions;
 const SMS_COUNTDOWN_SECONDS = 60;
+
+function zhJobOptions() {
+  return langUtils.getStrings("zh").jobOptions;
+}
 
 function padRole(role) {
   return role || "巡查员";
 }
 
 Page({
+  behaviors: [i18nBehavior],
+
+  onI18nReady(L) {
+    wx.setNavigationBarTitle({ title: L.navTitleProfile });
+    this.setData({ jobOptions: L.jobOptions });
+  },
+
   data: {
-    L: langUtils.getStrings("zh"),
     avatarPreview: "",
     avatarLetter: "林",
 
@@ -23,11 +33,11 @@ Page({
     phoneVerified: true,
     showSmsCodeInput: false,
     smsCooldown: 0,
-    smsBtnText: "获取验证码并修改",
+    smsBtnText: "",
     smsBusy: false,
     smsVerifyToken: "",
 
-    jobOptions: JOB_OPTIONS_CN,
+    jobOptions: langUtils.getStrings("zh").jobOptions,
     jobIndex: 0,
 
     // 保存前的原始快照，用于“重置/取消”恢复
@@ -40,6 +50,7 @@ Page({
     const curLang = (app.globalData || {}).lang || "zh";
     const L = langUtils.getStrings(curLang);
     const jobIndex = langUtils.getJobIndexFromStoredRole(p.role || "巡查员");
+    const smsDefault = L.getCodeModify;
 
     // 原始快照（不随语言变化）
     this._original = {
@@ -55,7 +66,6 @@ Page({
     const letter = (name && name[0]) || "林";
 
     this.setData({
-      L,
       avatarPreview: this._original.avatarPath,
       avatarLetter: letter,
       name,
@@ -66,28 +76,19 @@ Page({
       phoneVerified: true,
       showSmsCodeInput: false,
       smsCooldown: 0,
-      smsBtnText: "获取验证码并修改",
+      smsBtnText: smsDefault,
       smsBusy: false,
       smsVerifyToken: "",
       jobIndex,
       jobOptions: L.jobOptions,
     });
-
-    if (app && typeof app.onLangChange === "function") {
-      app.onLangChange((l) => {
-        const nextL = langUtils.getStrings(l);
-        this.setData({
-          L: nextL,
-          jobOptions: nextL.jobOptions,
-        });
-      });
-    }
   },
 
   onChooseAvatar() {
     const applyTemp = (tempPath) => {
       if (!tempPath) {
-        wx.showToast({ title: "未获取到头像图片", icon: "none" });
+        const L = langUtils.getStrings((getApp().globalData || {}).lang || "zh");
+        wx.showToast({ title: L.profileNoAvatar, icon: "none" });
         return;
       }
       this.setData({ avatarPreview: tempPath });
@@ -130,12 +131,13 @@ Page({
   },
 
   updateSmsButtonText() {
+    const L = langUtils.getStrings((getApp().globalData || {}).lang || "zh");
     const cd = Number(this.data.smsCooldown || 0);
     if (cd > 0) {
-      this.setData({ smsBtnText: `${cd}s后重试` });
+      this.setData({ smsBtnText: L.profileSmsRetry.replace("{s}", String(cd)) });
       return;
     }
-    this.setData({ smsBtnText: "获取验证码并修改" });
+    this.setData({ smsBtnText: L.getCodeModify });
   },
 
   startSmsCountdown(seconds = SMS_COUNTDOWN_SECONDS) {
@@ -178,11 +180,12 @@ Page({
   },
 
   async onEnablePhoneEdit() {
+    const L = langUtils.getStrings((getApp().globalData || {}).lang || "zh");
     if (this.data.smsCooldown > 0 || this.data.smsBusy) return;
     const phone = (this.data.phone || "").trim();
     if (!PHONE_RE.test(phone)) {
-      this.setData({ phoneError: "请输入11位有效手机号" });
-      wx.showToast({ title: "请先输入有效手机号", icon: "none" });
+      this.setData({ phoneError: L.profilePhoneInvalid });
+      wx.showToast({ title: L.profileToastPhoneFirst, icon: "none" });
       return;
     }
 
@@ -206,28 +209,29 @@ Page({
       this.startSmsCountdown(SMS_COUNTDOWN_SECONDS);
       if (resp.debugCode) {
         wx.showModal({
-          title: "调试验证码",
-          content: `当前验证码：${resp.debugCode}`,
+          title: L.profileDebugTitle,
+          content: L.profileDebugContent.replace("{code}", String(resp.debugCode)),
           showCancel: false
         });
       }
-      wx.showToast({ title: "验证码已发送", icon: "none" });
+      wx.showToast({ title: L.profileSmsSent, icon: "none" });
     } catch (e) {
       this.setData({ showSmsCodeInput: false });
-      wx.showToast({ title: e?.message || "发送失败，请稍后重试", icon: "none" });
+      wx.showToast({ title: e?.message || L.profileSmsSendFail, icon: "none" });
     } finally {
       this.setData({ smsBusy: false });
     }
   },
 
   async onCodeInput(e) {
+    const L = langUtils.getStrings((getApp().globalData || {}).lang || "zh");
     const code = e.detail.value.replace(/\\D/g, "").slice(0, 6);
     this.setData({ smsCode: code });
     if (code.length < 6 || this.data.smsBusy) return;
 
     const phone = (this.data.phone || "").trim();
     if (!PHONE_RE.test(phone)) {
-      this.setData({ phoneError: "请输入11位有效手机号" });
+      this.setData({ phoneError: L.profilePhoneInvalid });
       return;
     }
     this.setData({ smsBusy: true });
@@ -235,7 +239,7 @@ Page({
       const resp = await this.verifySmsCode(phone, code, this.data.smsVerifyToken);
       const ok = !!resp.success || Number(resp.code) === 200;
       if (!ok) {
-        throw new Error(resp.message || "验证码错误");
+        throw new Error(resp.message || L.profileSmsWrong);
       }
       this.setData({
         phoneVerified: true,
@@ -243,13 +247,13 @@ Page({
         smsCode: "",
         phoneError: ""
       });
-      wx.showToast({ title: "手机号验证成功", icon: "success" });
+      wx.showToast({ title: L.profileSmsVerifyOk, icon: "success" });
     } catch (err) {
       this.setData({
         phoneVerified: false,
-        phoneError: err?.message || "验证码错误，请重试"
+        phoneError: err?.message || L.profileSmsWrong
       });
-      wx.showToast({ title: "验证码校验失败", icon: "none" });
+      wx.showToast({ title: L.profileSmsVerifyFail, icon: "none" });
     } finally {
       this.setData({ smsBusy: false });
     }
@@ -279,23 +283,24 @@ Page({
   },
 
   onSave() {
+    const L = langUtils.getStrings((getApp().globalData || {}).lang || "zh");
     const name = (this.data.name || "").trim();
     const phone = (this.data.phone || "").trim();
     if (!phone || !PHONE_RE.test(phone)) {
-      this.setData({ phoneError: "请输入11位有效手机号" });
-      wx.showToast({ title: "保存失败：手机号格式不正确", icon: "none" });
+      this.setData({ phoneError: L.profilePhoneInvalid });
+      wx.showToast({ title: L.profileToastSaveInvalid, icon: "none" });
       return;
     }
     const originalPhone = ((this._original && this._original.phone) || "").trim();
     const phoneChanged = phone !== originalPhone;
     if (phoneChanged && !this.data.phoneVerified) {
-      this.setData({ phoneError: "请先完成验证码校验再保存" });
-      wx.showToast({ title: "请先完成手机号验证码校验", icon: "none" });
+      this.setData({ phoneError: L.profileVerifyFirst });
+      wx.showToast({ title: L.profileVerifyToast, icon: "none" });
       return;
     }
 
-    // 存储时用中文职务，保证 mine 等页面兼容
-    const roleCN = JOB_OPTIONS_CN[this.data.jobIndex] || "巡查员";
+    const z = zhJobOptions();
+    const roleCN = z[this.data.jobIndex] || z[0];
 
     this.persistAvatarIfNeeded()
       .then((avatarPath) => {
@@ -303,26 +308,25 @@ Page({
           avatarPath: avatarPath || "",
           name,
           phone,
-          // 这里用 role 存职务（中文），便于 mine 页展示
           role: roleCN,
           forestIndex: (this._original && this._original.forestIndex) || 0,
           gender: (this._original && this._original.gender) || "male",
         });
 
-        wx.showToast({ title: "保存成功", icon: "success" });
+        wx.showToast({ title: L.profileSaveOk, icon: "success" });
 
         setTimeout(() => {
-          // 返回“我的”tab页
           wx.switchTab({ url: "/pages/mine/mine" });
         }, 300);
       })
       .catch(() => {
-        wx.showToast({ title: "保存失败", icon: "none" });
+        wx.showToast({ title: L.checkinFail, icon: "none" });
       });
   },
 
   onCancel() {
-    // 恢复到原始快照（不保存）
+    const L = langUtils.getStrings((getApp().globalData || {}).lang || "zh");
+    const z = zhJobOptions();
     if (this._original) {
       this.setData({
         avatarPreview: this._original.avatarPath || "",
@@ -334,10 +338,10 @@ Page({
         phoneVerified: true,
         showSmsCodeInput: false,
         smsCooldown: 0,
-        smsBtnText: "获取验证码并修改",
+        smsBtnText: L.getCodeModify,
         smsBusy: false,
         smsVerifyToken: "",
-        jobIndex: Math.max(0, JOB_OPTIONS_CN.indexOf(this._original.role || "巡查员")),
+        jobIndex: Math.max(0, z.indexOf(this._original.role || "巡查员")),
       });
     }
 

@@ -1,24 +1,24 @@
 <view class="page">
-  <view class="sync-hint" wx:if="{{syncing}}">正在同步云端配置…</view>
+  <view class="sync-hint" wx:if="{{syncing}}">{{i18n.wsSyncing}}</view>
 
   <!-- 总开关 -->
   <view class="card">
     <view class="card-head">
-      <text class="card-title">通知总开关</text>
+      <text class="card-title">{{i18n.wsMaster}}</text>
       <switch
         checked="{{settings.masterEnabled}}"
         color="#165DFF"
         bindchange="onMasterChange"
       />
     </view>
-    <text class="card-desc">关闭后，将暂停所有预警推送；再次打开将恢复关闭前的分类设置。</text>
+    <text class="card-desc">{{i18n.wsMasterDesc}}</text>
   </view>
 
   <!-- 分类 -->
   <view class="card">
-    <view class="section-title">预警分类</view>
+    <view class="section-title">{{i18n.wsCategory}}</view>
     <view class="cell-row">
-      <text class="cell-label">火险等级预警（Ⅰ~Ⅴ级）</text>
+      <text class="cell-label">{{i18n.wsFireRisk}}</text>
       <switch
         checked="{{settings.categories.fireRiskLevels}}"
         disabled="{{formDisabled}}"
@@ -28,7 +28,7 @@
       />
     </view>
     <view class="cell-row">
-      <text class="cell-label">雷电 / 干旱预警</text>
+      <text class="cell-label">{{i18n.wsLightning}}</text>
       <switch
         checked="{{settings.categories.lightningDrought}}"
         disabled="{{formDisabled}}"
@@ -38,7 +38,7 @@
       />
     </view>
     <view class="cell-row">
-      <text class="cell-label">火情上报通知</text>
+      <text class="cell-label">{{i18n.wsFireReport}}</text>
       <switch
         checked="{{settings.categories.fireReportNotify}}"
         disabled="{{formDisabled}}"
@@ -48,7 +48,7 @@
       />
     </view>
     <view class="cell-row">
-      <text class="cell-label">巡查任务提醒</text>
+      <text class="cell-label">{{i18n.wsPatrol}}</text>
       <switch
         checked="{{settings.categories.patrolReminder}}"
         disabled="{{formDisabled}}"
@@ -61,9 +61,9 @@
 
   <!-- 渠道 -->
   <view class="card">
-    <view class="section-title">推送渠道</view>
+    <view class="section-title">{{i18n.wsChannel}}</view>
     <view class="cell-row">
-      <text class="cell-label">微信服务通知</text>
+      <text class="cell-label">{{i18n.wsWxService}}</text>
       <switch
         checked="{{settings.channels.serviceTemplate}}"
         disabled="{{formDisabled}}"
@@ -73,7 +73,7 @@
       />
     </view>
     <view class="cell-row">
-      <text class="cell-label">小程序内消息</text>
+      <text class="cell-label">{{i18n.wsInApp}}</text>
       <switch
         checked="{{settings.channels.inApp}}"
         disabled="{{formDisabled}}"
@@ -83,7 +83,7 @@
       />
     </view>
     <view class="cell-row">
-      <text class="cell-label">短信推送</text>
+      <text class="cell-label">{{i18n.wsSms}}</text>
       <switch
         checked="{{settings.channels.sms}}"
         disabled="{{formDisabled}}"
@@ -96,9 +96,9 @@
 
   <!-- 免打扰 -->
   <view class="card">
-    <view class="section-title">免打扰时段</view>
+    <view class="section-title">{{i18n.wsDnd}}</view>
     <view class="cell-row">
-      <text class="cell-label">启用免打扰</text>
+      <text class="cell-label">{{i18n.wsDndEnable}}</text>
       <switch
         checked="{{settings.dnd.enabled}}"
         disabled="{{formDisabled}}"
@@ -107,13 +107,13 @@
       />
     </view>
     <view class="cell-row picker-row" wx:if="{{settings.dnd.enabled}}">
-      <text class="cell-label">开始</text>
+      <text class="cell-label">{{i18n.wsDndStart}}</text>
       <picker mode="time" value="{{settings.dnd.start}}" disabled="{{formDisabled}}" bindchange="onDndStartChange">
         <view class="picker-value">{{settings.dnd.start}}</view>
       </picker>
     </view>
     <view class="cell-row picker-row" wx:if="{{settings.dnd.enabled}}">
-      <text class="cell-label">结束</text>
+      <text class="cell-label">{{i18n.wsDndEnd}}</text>
       <picker mode="time" value="{{settings.dnd.end}}" disabled="{{formDisabled}}" bindchange="onDndEndChange">
         <view class="picker-value">{{settings.dnd.end}}</view>
       </picker>
@@ -122,9 +122,9 @@
 
   <!-- 区域 -->
   <view class="card">
-    <view class="section-title">区域与范围</view>
+    <view class="section-title">{{i18n.wsRegion}}</view>
     <view class="cell-row picker-row">
-      <text class="cell-label">关注林区</text>
+      <text class="cell-label">{{i18n.wsForest}}</text>
       <picker
         mode="selector"
         range="{{forestNames}}"
@@ -136,7 +136,7 @@
       </picker>
     </view>
     <view class="cell-row picker-row">
-      <text class="cell-label">关注网格</text>
+      <text class="cell-label">{{i18n.wsGrid}}</text>
       <picker
         mode="selector"
         range="{{grids}}"
@@ -148,7 +148,7 @@
       </picker>
     </view>
     <view class="slider-block">
-      <view class="slider-label">预警接收半径（{{settings.region.radiusKm}} km）</view>
+      <view class="slider-label">{{radiusLabel}}</view>
       <slider
         min="1"
         max="50"
@@ -166,9 +166,9 @@
 
   <!-- 内容 -->
   <view class="card">
-    <view class="section-title">内容与播报</view>
+    <view class="section-title">{{i18n.wsContent}}</view>
     <view class="cell-row picker-row">
-      <text class="cell-label">预警模板</text>
+      <text class="cell-label">{{i18n.wsTemplate}}</text>
       <picker
         mode="selector"
         range="{{templateLabels}}"
@@ -180,7 +180,7 @@
       </picker>
     </view>
     <view class="cell-row">
-      <text class="cell-label">语音播报</text>
+      <text class="cell-label">{{i18n.wsVoice}}</text>
       <switch
         checked="{{settings.content.voiceBroadcast}}"
         disabled="{{formDisabled}}"
@@ -192,8 +192,8 @@
 
   <!-- 最近 7 天记录 -->
   <view class="card log-card">
-    <view class="section-title">最近 7 天预警接收</view>
-    <view class="log-empty" wx:if="{{!logs.length}}">暂无接收记录，可在预警推送到达后写入日志。</view>
+    <view class="section-title">{{i18n.wsLogTitle}}</view>
+    <view class="log-empty" wx:if="{{!logs.length}}">{{i18n.wsLogEmpty}}</view>
     <view class="log-item" wx:for="{{logs}}" wx:key="id">
       <view class="log-time">{{item.time}}</view>
       <view class="log-title">{{item.title}}</view>

@@ -1,4 +1,5 @@
 const langUtils = require("../../utils/lang.js");
+const { computeWarningNavLayout } = require("../../utils/warningNavLayout");
 
 // ====== AI 接入方式 ======
 // true：调用云函数 aiForestRisk
@@ -410,6 +411,14 @@ function normalizeHeatMarkerRow(item) {
 Page({
   data: {
     L: langUtils.getStrings("zh"),
+    /** 自定义导航栏（与胶囊对齐） */
+    statusBarHeight: 20,
+    navBarHeight: 44,
+    totalNavHeight: 64,
+    menuTopInNav: 6,
+    menuHeight: 32,
+    langBtnRightPx: 8,
+    navLangBtnText: "汉语",
 
     /** 地图中心（火星坐标）；仅由 getLocation 与 refreshHeatMap 更新，不硬编码广州等城市 */
     latitude: 0,
@@ -509,6 +518,7 @@ Page({
   },
 
   onLoad() {
+    this.setData(computeWarningNavLayout());
     const app = getApp();
     const l = (app.globalData || {}).lang || "zh";
     this.syncLang(l);
@@ -1139,11 +1149,22 @@ Page({
       "近30天"
     ];
 
+    const navLangBtnText = l === "bo" ? L.warningNavLangBo : L.warningNavLangZh;
     this.setData({
       L,
       levelOptions,
       timeOptions,
+      navLangBtnText,
     });
+  },
+
+  onToggleLang() {
+    const app = getApp();
+    const cur = (app.globalData || {}).lang || "zh";
+    const next = cur === "bo" ? "zh" : "bo";
+    if (app && typeof app.setLang === "function") {
+      app.setLang(next);
+    }
   },
 
   onLevelChange(e) {

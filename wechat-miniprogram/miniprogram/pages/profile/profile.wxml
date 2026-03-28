@@ -3,7 +3,7 @@
 
   <!-- 顶部栏：标题 + 保存按钮 -->
   <view class="topbar">
-    <text class="top-title">{{L.editProfile}}</text>
+    <text class="top-title">{{i18n.editProfile}}</text>
   </view>
 
   <!-- 头像编辑区 -->
@@ -18,14 +18,14 @@
       <view wx:else class="avatar-fallback">{{avatarLetter}}</view>
     </view>
 
-    <button class="change-btn" bindtap="onChooseAvatar">{{L.changeAvatar}}</button>
+    <button class="change-btn" bindtap="onChooseAvatar">{{i18n.changeAvatar}}</button>
 
     <view class="field name-field">
-      <text class="label">姓名</text>
+      <text class="label">{{i18n.name}}</text>
       <input
         class="input"
         value="{{name}}"
-        placeholder="请输入姓名"
+        placeholder="{{i18n.namePh}}"
         maxlength="20"
         bindinput="onNameInput"
       />
@@ -34,16 +34,16 @@
 
   <!-- 表单区域：手机号、职务 -->
   <view class="card form-card">
-    <view class="section-title">{{L.phone}} / {{L.job}}</view>
+    <view class="section-title">{{i18n.phone}} / {{i18n.job}}</view>
 
     <view class="field">
-      <text class="label">{{L.phone}}</text>
+      <text class="label">{{i18n.phone}}</text>
 
       <view class="phone-row">
         <input
           class="input {{phoneError ? 'input-err' : ''}}"
           value="{{phone}}"
-          placeholder="请输入手机号"
+          placeholder="{{i18n.profilePhonePh}}"
           type="number"
           maxlength="11"
           bindinput="onPhoneInput"
@@ -63,18 +63,18 @@
         <input
           class="code-input"
           value="{{smsCode}}"
-          placeholder="验证码（模拟）"
+          placeholder="{{i18n.profileSmsCodePh}}"
           maxlength="6"
           bindinput="onCodeInput"
         />
-        <button class="mini-ghost" size="mini" bindtap="onResendCode">{{L.resendCode}}</button>
+        <button class="mini-ghost" size="mini" bindtap="onResendCode">{{i18n.resendCode}}</button>
       </view>
 
       <text wx:if="{{phoneError}}" class="err">{{phoneError}}</text>
     </view>
 
     <view class="field">
-      <text class="label">{{L.job}}</text>
+      <text class="label">{{i18n.job}}</text>
       <picker mode="selector" range="{{jobOptions}}" value="{{jobIndex}}" bindchange="onJobChange">
         <view class="picker-val">{{jobOptions[jobIndex]}}</view>
       </picker>
@@ -83,8 +83,8 @@
 
   <!-- 底部操作区 -->
   <view class="bottom-actions">
-    <button class="btn btn-cancel" bindtap="onCancel">{{L.resetCancel}}</button>
-    <button class="btn btn-save" bindtap="onSave">{{L.save}}</button>
+    <button class="btn btn-cancel" bindtap="onCancel">{{i18n.resetCancel}}</button>
+    <button class="btn btn-save" bindtap="onSave">{{i18n.save}}</button>
   </view>
 
   <view class="safe-bottom"></view>

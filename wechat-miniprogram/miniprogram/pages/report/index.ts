@@ -1,7 +1,29 @@
 const fireReport = require("../../utils/fireReportSync");
 const { load } = require("../../utils/userProfileStorage.js");
+const lang = require("../../utils/lang.js");
+const i18nBehavior = require("../../utils/i18nBehavior.js");
+
+function getL() {
+  return lang.getStrings((getApp().globalData || {}).lang || "zh");
+}
 
 Page({
+  behaviors: [i18nBehavior],
+
+  onI18nReady(L: Record<string, string>) {
+    wx.setNavigationBarTitle({ title: L.navTitleReport });
+    const d = this.data;
+    if (d.hasLocation && d.markers && d.markers.length) {
+      const markers = [...d.markers];
+      const m0 = markers[0] as WechatMiniprogram.MapMarker;
+      markers[0] = {
+        ...m0,
+        callout: { content: L.reportMapCallout, display: m0.callout?.display || "BYCLICK" },
+      };
+      this.setData({ markers });
+    }
+  },
+
   data: {
     form: {
       location: "",
@@ -21,8 +43,9 @@ Page({
 
   onLoad() {
     const p = load();
+    const L = getL();
     this.setData({
-      "form.reporterName": p.name || "巡查员",
+      "form.reporterName": p.name || L.defaultInspector,
       "form.reporterPhone": p.phone || "",
     });
     this.autoLocate();
@@ -37,6 +60,7 @@ Page({
   },
 
   applyMap(lat: number, lng: number) {
+    const L = getL();
     this.setData({
       latNum: lat,
       lngNum: lng,
@@ -48,7 +72,7 @@ Page({
           longitude: lng,
           width: 28,
           height: 28,
-          callout: { content: "火情位置", display: "BYCLICK" },
+          callout: { content: L.reportMapCallout, display: "BYCLICK" },
         },
       ],
     });
@@ -59,6 +83,7 @@ Page({
       type: "gcj02",
       isHighAccuracy: true,
       success: (res) => {
+        const L = getL();
         const lat = Number(res.latitude);
         const lng = Number(res.longitude);
         const latStr = lat.toFixed(6);
@@ -66,7 +91,7 @@ Page({
         this.setData({
           "form.latitude": latStr,
           "form.longitude": lngStr,
-          "form.location": `经纬度(${latStr}, ${lngStr})`,
+          "form.location": L.reportCoordFmt.replace("{a}", latStr).replace("{b}", lngStr),
           "form.reportTime": this.nowText(),
         });
         this.applyMap(lat, lng);
@@ -82,10 +107,11 @@ Page({
 
   onRefreshLocation() {
     this.autoLocate();
-    wx.showToast({ title: "位置已更新", icon: "none" });
+    wx.showToast({ title: getL().reportLocUpdated, icon: "none" });
   },
 
   onChooseLocationManual() {
+    const L = getL();
     wx.chooseLocation({
       success: (res) => {
         const lat = Number(res.latitude);
@@ -93,7 +119,8 @@ Page({
         const latStr = lat.toFixed(6);
         const lngStr = lng.toFixed(6);
         this.setData({
-          "form.location": res.name || res.address || `经纬度(${latStr}, ${lngStr})`,
+          "form.location":
+            res.name || res.address || L.reportCoordFmt.replace("{a}", latStr).replace("{b}", lngStr),
           "form.latitude": latStr,
           "form.longitude": lngStr,
           "form.reportTime": this.nowText(),
@@ -105,7 +132,7 @@ Page({
 
   onChooseImage() {
     const remain = 3 - this.data.form.images.length;
-    if (remain <= 0) return wx.showToast({ title: "最多3张图片", icon: "none" });
+    if (remain <= 0) return wx.showToast({ title: getL().reportMaxImg, icon: "none" });
     wx.chooseImage({
       count: remain,
       sizeType: ["compressed"],
@@ -119,13 +146,14 @@ Page({
   },
 
   onClearAndReselectImages() {
+    const L = getL();
     wx.showModal({
-      title: "重新选择图片",
-      content: "将清空当前已选图片，是否继续？",
+      title: L.reportClearImgTitle,
+      content: L.reportClearImgContent,
       success: (res) => {
         if (!res.confirm) return;
         this.setData({ "form.images": [] });
-        wx.showToast({ title: "已清空，请重新添加", icon: "none" });
+        wx.showToast({ title: L.reportCleared, icon: "none" });
       },
     });
   },
@@ -150,34 +178,35 @@ Page({
   },
 
   submitReport() {
+    const L = getL();
     const { location, images, latitude, longitude, reporterName, reporterPhone } = this.data.form;
     if (!images || !images.length) {
-      wx.showToast({ title: "请至少上传1张图片", icon: "none" });
+      wx.showToast({ title: L.reportNeedImg, icon: "none" });
       return;
     }
     if (!location || !latitude || !longitude) {
-      wx.showToast({ title: "请先获取定位", icon: "none" });
+      wx.showToast({ title: L.reportNeedLoc, icon: "none" });
       return;
     }
 
     const reportTime = this.nowText();
     this.setData({ "form.reportTime": reportTime });
 
-    wx.showLoading({ title: "提交中", mask: true });
+    wx.showLoading({ title: L.reportSubmitting, mask: true });
     fireReport
       .submitFireReport({
         location,
         latitude,
         longitude,
         images,
-        reporterName: reporterName || "巡查员",
+        reporterName: reporterName || L.defaultInspector,
         reporterPhone: reporterPhone || "",
         reportTime,
       })
       .then(({ queued, uploaded }: { queued: boolean; uploaded: boolean; record: unknown }) => {
         wx.hideLoading();
         if (uploaded && !queued) {
-          wx.showToast({ title: "火情上报成功", icon: "success" });
+          wx.showToast({ title: L.reportSuccess, icon: "success" });
           this.setData({
             "form.images": [],
             "form.reportTime": this.nowText(),
@@ -187,14 +216,14 @@ Page({
           }, 800);
           return;
         }
-        wx.showToast({ title: "无网络或上传失败，已缓存待同步", icon: "none" });
+        wx.showToast({ title: L.reportOffline, icon: "none" });
         setTimeout(() => {
           wx.switchTab({ url: "/pages/index/index" });
         }, 800);
       })
       .catch(() => {
         wx.hideLoading();
-        wx.showToast({ title: "提交失败，请稍后重试", icon: "none" });
+        wx.showToast({ title: L.reportFail, icon: "none" });
       });
   },
 

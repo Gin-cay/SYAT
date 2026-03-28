@@ -11,21 +11,37 @@ import {
 
 const initialSettings = loadLocalSettings();
 
-const { FORESTS } = require("../../utils/userProfileStorage.js");
+const lang = require("../../utils/lang.js");
+const i18nBehavior = require("../../utils/i18nBehavior.js");
 
-const GRIDS = ["1号网格", "2号网格", "3号网格", "4号网格", "5号网格"];
-const TEMPLATE_RANGE = [
-  { id: "default" as const, name: "标准模板" },
-  { id: "detail" as const, name: "详细模板" },
-  { id: "brief" as const, name: "精简模板" },
-];
+const initialL = lang.getStrings(lang.loadLang());
+
+const TEMPLATE_RANGE = [{ id: "default" as const }, { id: "detail" as const }, { id: "brief" as const }];
+
+function templateLabelsFromL(L: Record<string, string>) {
+  return [L.templateStd, L.templateDetail, L.templateBrief];
+}
 
 Page({
+  behaviors: [i18nBehavior],
+
+  onI18nReady(L: Record<string, string>) {
+    wx.setNavigationBarTitle({ title: L.navTitleWarningSetting });
+    const km = this.data.settings.region.radiusKm;
+    this.setData({
+      forestNames: L.forestOptions,
+      grids: L.gridOptions,
+      templateLabels: templateLabelsFromL(L),
+      radiusLabel: L.wsRadiusFmt.replace("{km}", String(km)),
+    });
+  },
+
   data: {
     settings: initialSettings,
-    forestNames: FORESTS as string[],
-    grids: GRIDS,
-    templateLabels: TEMPLATE_RANGE.map((t) => t.name),
+    forestNames: initialL.forestOptions as string[],
+    grids: initialL.gridOptions as string[],
+    templateLabels: templateLabelsFromL(initialL),
+    radiusLabel: initialL.wsRadiusFmt.replace("{km}", String(initialSettings.region.radiusKm)),
     templateIndex: 0,
     logs: [] as ReturnType<typeof getLogsLast7Days>,
     formDisabled: false,
@@ -66,13 +82,19 @@ Page({
     this.setData({ templateIndex: idx >= 0 ? idx : 0 });
   },
 
+  updateRadiusLabel() {
+    const L = lang.getStrings((getApp().globalData || {}).lang || "zh");
+    const km = this.data.settings.region.radiusKm;
+    this.setData({ radiusLabel: L.wsRadiusFmt.replace("{km}", String(km)) });
+  },
+
   refreshLogs() {
     this.setData({ logs: getLogsLast7Days() });
   },
 
   persist(next: WarningSettingsState) {
     const saved = saveLocalSettings(next);
-    this.setData({ settings: saved });
+    this.setData({ settings: saved }, () => this.updateRadiusLabel());
     syncSettingsToCloud(saved).catch(() => {});
   },
 

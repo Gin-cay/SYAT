@@ -1,9 +1,11 @@
 const { load } = require("../../utils/userProfileStorage.js");
 const langUtils = require("../../utils/lang.js");
+const i18nBehavior = require("../../utils/i18nBehavior.js");
 
 Page({
+  behaviors: [i18nBehavior],
+
   data: {
-    L: langUtils.getStrings("zh"),
     userInfo: {
       avatar: "",
       name: "张林",
@@ -16,11 +18,6 @@ Page({
       { key: "help", title: "帮助与反馈", icon: "💬" },
       { key: "about", title: "关于我们", icon: "ℹ️" }
     ]
-  },
-
-  t(key) {
-    const app = getApp();
-    return app && app.globalData && app.globalData.t ? app.globalData.t(key) : key;
   },
 
   onLoad() {
@@ -55,7 +52,6 @@ Page({
     const L = langUtils.getStrings(cur);
 
     this.setData({
-      L,
       menuList: [
         { key: "patrol", title: L.menuPatrol, icon: "📍" },
         { key: "report", title: L.menuReport, icon: "🔥" },
@@ -89,10 +85,10 @@ Page({
 
   onLogout() {
     const app = getApp();
-    const L = this.data.L || langUtils.getStrings("zh");
+    const L = langUtils.getStrings(app.globalData.lang || "zh");
     wx.showModal({
       title: L.logout,
-      content: app.globalData.lang === "bo" ? "ནང་འཛུལ་ཕྱིར་འཐེན་གྱི་དོན་ཡིན།" : "确认退出当前账号吗？",
+      content: L.logoutConfirm,
       success: (res) => {
         if (!res.confirm) {
           return;
@@ -113,7 +109,7 @@ Page({
           } catch (e) {}
         });
 
-        wx.showToast({ title: app.globalData.lang === "bo" ? "ཕྱིར་འཐེན་ཟིན" : "已退出登录", icon: "success" });
+        wx.showToast({ title: L.logoutDone, icon: "success" });
 
         // 回到登录页（若你有真实登录逻辑，可在登录页接入）
         setTimeout(() => {

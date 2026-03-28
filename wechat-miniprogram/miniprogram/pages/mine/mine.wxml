@@ -29,6 +29,6 @@
 
   <!-- 底部退出登录 -->
   <view class="logout-wrap">
-    <button class="logout-btn" bindtap="onLogout">{{t('logout')}}</button>
+    <button class="logout-btn" bindtap="onLogout">{{i18n.logout}}</button>
   </view>
 </view>

@@ -44,6 +44,7 @@ App({
         traceUser: true,
       });
     }
+    this.updateTabBarLang();
     bindNetworkFlush();
     flushPatrolUpload();
     report.bindNetworkFlush();
@@ -64,10 +65,20 @@ App({
     const v = newLang === "bo" ? "bo" : "zh";
     this.globalData.lang = v;
     lang.saveLang(v);
+    this.updateTabBarLang();
     (this._langListeners || []).forEach((fn) => {
       try {
         fn(v);
       } catch (e) {}
     });
+  },
+
+  updateTabBarLang() {
+    const L = lang.getStrings(this.globalData.lang || "zh");
+    try {
+      wx.setTabBarItem({ index: 0, text: L.tabHome });
+      wx.setTabBarItem({ index: 1, text: L.tabWarning });
+      wx.setTabBarItem({ index: 2, text: L.tabMine });
+    } catch (e) {}
   },
 });

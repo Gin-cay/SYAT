@@ -3,10 +3,10 @@
 <scroll-view class="page" scroll-y>
   <!-- FAQ -->
   <view class="card">
-    <view class="card-title">常见问题</view>
+    <view class="card-title">{{i18n.hfFaqTitle}}</view>
     <input
       class="search-input"
-      placeholder="搜索问题关键词"
+      placeholder="{{i18n.hfSearchPh}}"
       value="{{searchKeyword}}"
       confirm-type="search"
       bindinput="onSearchInput"
@@ -32,15 +32,15 @@
         </view>
         <view class="faq-a" wx:if="{{faq.open(expandedMap, item.id)}}">{{item.answer}}</view>
       </view>
-      <view class="empty-tip" wx:if="{{!displayFaq.length}}">未找到相关问题，可尝试更换关键词或下方提交反馈。</view>
+      <view class="empty-tip" wx:if="{{!displayFaq.length}}">{{i18n.hfFaqEmpty}}</view>
     </view>
   </view>
 
   <!-- 问题反馈 -->
   <view class="card">
-    <view class="card-title">问题反馈</view>
+    <view class="card-title">{{i18n.hfFeedbackTitle}}</view>
     <view class="field">
-      <text class="label">反馈类型</text>
+      <text class="label">{{i18n.hfType}}</text>
       <picker
         mode="selector"
         range="{{typeOptions}}"
@@ -52,17 +52,17 @@
       </picker>
     </view>
     <view class="field">
-      <text class="label">问题描述</text>
+      <text class="label">{{i18n.hfDesc}}</text>
       <textarea
         class="textarea"
-        placeholder="请描述遇到的问题（至少5个字）"
+        placeholder="{{i18n.hfDescPh}}"
         maxlength="500"
         value="{{formContent}}"
         bindinput="onContentInput"
       />
     </view>
     <view class="field">
-      <text class="label">图片（最多3张）</text>
+      <text class="label">{{i18n.hfPhotos}}</text>
       <view class="img-row">
         <view class="img-item" wx:for="{{formImages}}" wx:key="*this">
           <image
@@ -78,10 +78,10 @@
       </view>
     </view>
     <view class="field">
-      <text class="label">联系方式</text>
+      <text class="label">{{i18n.hfContact}}</text>
       <input
         class="input"
-        placeholder="手机号 / 微信（选填）"
+        placeholder="{{i18n.hfContactPh}}"
         value="{{formContact}}"
         bindinput="onContactInput"
       />
@@ -91,38 +91,38 @@
       loading="{{submitting}}"
       disabled="{{submitting}}"
       bindtap="onSubmitFeedback"
-    >提交反馈</button>
+    >{{i18n.hfSubmit}}</button>
   </view>
 
   <!-- 联系我们 -->
   <view class="card">
-    <view class="card-title">联系我们</view>
+    <view class="card-title">{{i18n.hfContactUs}}</view>
     <view class="contact-row">
-      <text class="c-label">森林火警</text>
+      <text class="c-label">{{i18n.hfForestFire}}</text>
       <text class="c-link" data-phone="{{contact.emergencyPhone}}" bindtap="onCallPhone">{{contact.emergencyPhone}}</text>
     </view>
     <view class="contact-row">
-      <text class="c-label">值班电话</text>
+      <text class="c-label">{{i18n.hfDutyPhone}}</text>
       <text class="c-link" data-phone="{{contact.dutyPhone}}" bindtap="onCallPhone">{{contact.dutyPhone}}</text>
     </view>
     <view class="contact-row block">
-      <text class="c-label">技术支持</text>
+      <text class="c-label">{{i18n.hfSupport}}</text>
       <text class="c-text">{{contact.wechatHint}}</text>
     </view>
     <view class="contact-row block">
-      <text class="c-label">工作时间</text>
+      <text class="c-label">{{i18n.hfWorkTime}}</text>
       <text class="c-text">{{contact.workTime}}</text>
     </view>
     <view class="qr-wrap">
       <image wx:if="{{contact.qrUrl}}" class="qr-img" src="{{contact.qrUrl}}" mode="aspectFit" />
-      <view wx:else class="qr-placeholder">企业微信群二维码（将图片放入 miniprogram/images 并在页面 data.contact.qrUrl 中配置路径）</view>
+      <view wx:else class="qr-placeholder">{{i18n.hfQrPlaceholder}}</view>
     </view>
   </view>
 
   <!-- 反馈历史 -->
   <view class="card history-card">
-    <view class="card-title">反馈历史</view>
-    <view class="empty-tip" wx:if="{{!history.length}}">暂无反馈记录</view>
+    <view class="card-title">{{i18n.hfHistoryTitle}}</view>
+    <view class="empty-tip" wx:if="{{!history.length}}">{{i18n.hfHistoryEmpty}}</view>
     <view class="hist-item" wx:for="{{history}}" wx:key="feedbackNo">
       <view class="hist-head">
         <text class="hist-no">{{item.feedbackNo}}</text>
@@ -140,14 +140,14 @@
           mode="aspectFill"
         />
       </view>
-      <view class="hist-contact" wx:if="{{item.contact}}">联系方式：{{item.contact}}</view>
+      <view class="hist-contact" wx:if="{{item.contact}}">{{i18n.hfContactLine}}{{item.contact}}</view>
       <button
         wx:if="{{item.status !== 'resolved'}}"
         class="resolve-btn"
         size="mini"
         data-no="{{item.feedbackNo}}"
         bindtap="onMarkResolved"
-      >标记为已解决</button>
+      >{{i18n.hfMarkResolved}}</button>
     </view>
   </view>
 </scroll-view>
